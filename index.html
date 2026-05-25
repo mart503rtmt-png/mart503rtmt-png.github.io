@@ -2721,9 +2721,9 @@ echo "Hola, $nombre"
 echo "2 + 2 = $((2+2))"  # aritmética`},
       {label:'Arrays', code:
 `arr=(uno dos tres)
-echo ${arr[0]}           # uno
-echo ${arr[@]}           # todos
-echo ${#arr[@]}          # longitud
+echo \${arr[0]}           # uno
+echo \${arr[@]}           # todos
+echo \${#arr[@]}          # longitud
 arr+=(cuatro)            # agregar`},
     ]},
     {id:'flow', title:'Control de flujo', snippets:[
@@ -2779,12 +2779,12 @@ resultado=$(sumar 3 4)  # capturar output`},
     {id:'strings', title:'Strings y texto', snippets:[
       {label:'Manipulación de strings', code:
 `s="Hola Mundo"
-echo ${#s}              # longitud: 10
-echo ${s:0:4}           # "Hola" (substr)
-echo ${s/Hola/Hey}      # reemplazar
-echo ${s,,}             # minúsculas
-echo ${s^^}             # mayúsculas
-echo ${s% *}            # quitar última palabra`},
+echo \${#s}              # longitud: 10
+echo \${s:0:4}           # "Hola" (substr)
+echo \${s/Hola/Hey}      # reemplazar
+echo \${s,,}             # minúsculas
+echo \${s^^}             # mayúsculas
+echo \${s% *}            # quitar última palabra`},
       {label:'Procesamiento de texto', code:
 `# grep — buscar patrón
 grep "error" log.txt
