@@ -1,0 +1,3028 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Dashboard Estudiantil</title>
+    <style>
+        :root {
+            --bg: #0d0d14;
+            --bg-card: #16161f;
+            --bg-hover: #1f1f2e;
+            --accent: #7c6af7;
+            --accent2: #a78bfa;
+            --text: #e2e3f0;
+            --text-muted: #7a7a9a;
+            --border: #252535;
+            --success: #22d3a5;
+            --warning: #f5a623;
+            --danger: #f06060;
+            --radius: 12px;
+            --sidebar-w: 230px;
+        }
+        [data-theme="light"] {
+            --bg: #f3f4f8;
+            --bg-card: #ffffff;
+            --bg-hover: #ecedf5;
+            --accent: #6457e8;
+            --accent2: #7c6af7;
+            --text: #1a1a2e;
+            --text-muted: #6b6b8a;
+            --border: #ddddf0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.25s;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 10px 20px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent2);
+        }
+        .logo-icon { font-size: 26px; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 9px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.15s;
+            user-select: none;
+            margin-bottom: 2px;
+        }
+        .nav-item:hover { background: var(--bg-hover); color: var(--text); }
+        .nav-item.active { background: rgba(124,106,247,0.13); color: var(--accent2); }
+        .nav-icon { font-size: 17px; width: 22px; text-align: center; }
+        .sidebar-footer { margin-top: auto; padding-top: 16px; }
+        .clock-box { padding: 10px 12px; }
+        .clock-time { font-size: 22px; font-weight: 700; }
+        .clock-date { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .theme-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 8px;
+            transition: all 0.15s;
+        }
+        .theme-btn:hover { color: var(--text); }
+
+        /* ─── MAIN ─── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: 32px 36px;
+            max-width: calc(100vw - var(--sidebar-w));
+            overflow-x: hidden;
+        }
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .page-title { font-size: 22px; font-weight: 700; }
+
+        /* ─── CARDS / GRID ─── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+        }
+        .stat-value { font-size: 30px; font-weight: 800; }
+        .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        /* ─── BUTTONS ─── */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent2); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { background: var(--bg-hover); }
+        .btn-danger { background: rgba(240,96,96,0.12); color: var(--danger); border: 1px solid rgba(240,96,96,0.2); }
+        .btn-danger:hover { background: rgba(240,96,96,0.22); }
+
+        /* ─── CALENDAR ─── */
+        .cal-nav { display: flex; align-items: center; gap: 10px; }
+        .cal-nav span { font-weight: 700; font-size: 15px; min-width: 160px; text-align: center; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+        .cal-day-header {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 6px 0;
+            font-weight: 700;
+            letter-spacing: .04em;
+        }
+        .cal-day {
+            min-height: 52px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4px 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.12s;
+            position: relative;
+        }
+        .cal-day:hover { background: var(--bg-hover); }
+        .cal-day.selected { background: rgba(124,106,247,0.15); }
+        .day-num {
+            font-size: 13px;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 500;
+        }
+        .cal-day.today .day-num { background: var(--accent); color: #fff; font-weight: 700; }
+        .cal-day.other-month { opacity: 0.28; }
+        .event-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+        .event-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent2); }
+        .event-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 9px;
+            border-left: 3px solid var(--accent);
+            background: var(--bg-hover);
+            margin-bottom: 8px;
+            align-items: flex-start;
+        }
+        .event-time { font-size: 11px; color: var(--text-muted); min-width: 56px; padding-top: 2px; }
+        .event-title { font-size: 13px; font-weight: 600; }
+        .event-loc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        /* ─── LINKS ─── */
+        .link-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text);
+        }
+        .link-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(124,106,247,0.15);
+        }
+        .link-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .link-info { flex: 1; overflow: hidden; }
+        .link-name { font-weight: 600; font-size: 14px; }
+        .link-url { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+
+        /* ─── NOTES ─── */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(124,106,247,0.05);
+            color: var(--text);
+        }
+        .drop-zone-icon { font-size: 36px; margin-bottom: 6px; }
+        .note-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            transition: border-color 0.15s;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .note-card:hover { border-color: var(--accent); }
+        .note-icon { font-size: 30px; }
+        .note-title { font-weight: 600; font-size: 14px; line-height: 1.3; word-break: break-word; }
+        .subject-tag {
+            display: inline-block;
+            background: rgba(124,106,247,0.18);
+            color: var(--accent2);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 20px;
+            align-self: flex-start;
+        }
+        .note-meta { font-size: 11px; color: var(--text-muted); }
+        .note-actions { display: flex; gap: 6px; margin-top: auto; }
+
+        /* ─── FORMS ─── */
+        .form-group { margin-bottom: 14px; }
+        .form-label { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 5px; display: block; letter-spacing: .04em; text-transform: uppercase; }
+        .form-input {
+            width: 100%;
+            padding: 9px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s;
+            font-family: inherit;
+        }
+        .form-input:focus { border-color: var(--accent); }
+        select.form-input { cursor: pointer; }
+
+        /* ─── MODAL ─── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 999;
+            backdrop-filter: blur(4px);
+        }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 26px 28px;
+            width: 460px;
+            max-width: 92vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
+        /* ─── TOOLS ─── */
+        .tool-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+        .tool-title { font-weight: 700; font-size: 15px; margin-bottom: 14px; }
+        .tool-result {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 36px;
+            white-space: pre-line;
+            color: var(--success);
+        }
+
+        /* ─── TABS ─── */
+        .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            font-weight: 600;
+            border-radius: 6px 6px 0 0;
+            transition: all 0.12s;
+        }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+        /* ─── SEARCH ─── */
+        .search-row { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+        .search-box {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 12px; flex: 1; min-width: 180px;
+        }
+        .search-box input { background: none; border: none; color: var(--text); font-size: 13px; outline: none; width: 100%; }
+        .search-box input::placeholder { color: var(--text-muted); }
+
+        /* ─── INFO BOX ─── */
+        .info-box {
+            background: rgba(124,106,247,0.08);
+            border: 1px solid rgba(124,106,247,0.2);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 14px;
+        }
+        .info-box strong { color: var(--text); }
+
+        /* ─── SCROLLBAR ─── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 820px) {
+            :root { --sidebar-w: 58px; }
+            .nav-text, .logo-name, .clock-date, .theme-label { display: none; }
+            .logo { justify-content: center; padding-bottom: 16px; }
+            .main { padding: 20px 16px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        /* ─── CALC ─── */
+        #calc-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-top: 10px; }
+        .calc-btn {
+            padding: 0; height: 42px; border-radius: 8px; border: none;
+            cursor: pointer; font-size: 13px; font-weight: 600;
+            background: var(--bg-hover); color: var(--text);
+            transition: all 0.1s;
+        }
+        .calc-btn:hover { background: var(--border); }
+        .calc-btn.op { background: rgba(124,106,247,0.18); color: var(--accent2); }
+        .calc-btn.eq { background: var(--accent); color: #fff; }
+        .calc-btn.eq:hover { background: var(--accent2); }
+        #calc-display {
+            width: 100%; padding: 10px 12px; background: var(--bg);
+            border: 1px solid var(--border); border-radius: 8px;
+            color: var(--text); font-size: 20px; font-weight: 700;
+            text-align: right; font-family: monospace; outline: none;
+            margin-bottom: 8px;
+        }
+
+        /* ─── PILL BADGE ─── */
+        .pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .pill-green { background: rgba(34,211,165,0.15); color: var(--success); }
+        .pill-orange { background: rgba(245,166,35,0.15); color: var(--warning); }
+    </style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<nav class="sidebar">
+    <div class="logo">
+        <span class="logo-icon">🎓</span>
+        <span class="logo-name">Mi Dashboard</span>
+    </div>
+
+    <div class="nav-item active" onclick="navigate('dashboard')">
+        <span class="nav-icon">🏠</span><span class="nav-text">Inicio</span>
+    </div>
+    <div class="nav-item" onclick="navigate('calendar')">
+        <span class="nav-icon">📅</span><span class="nav-text">Calendario</span>
+    </div>
+    <div class="nav-item" onclick="navigate('links')">
+        <span class="nav-icon">🔗</span><span class="nav-text">Accesos Rápidos</span>
+    </div>
+    <div class="nav-item" onclick="navigate('notes')">
+        <span class="nav-icon">📝</span><span class="nav-text">Mis Apuntes</span>
+    </div>
+    <div class="nav-item" onclick="navigate('tools')">
+        <span class="nav-icon">🔧</span><span class="nav-text">Herramientas</span>
+    </div>
+    <div class="nav-item" onclick="navigate('settings')">
+        <span class="nav-icon">⚙️</span><span class="nav-text">Configuración</span>
+    </div>
+
+    <div class="sidebar-footer">
+        <button class="theme-btn" onclick="toggleTheme()">
+            <span id="theme-icon">☀️</span>
+            <span class="theme-label nav-text" id="theme-text">Modo claro</span>
+        </button>
+        <div class="clock-box">
+            <div class="clock-time" id="clock-t">--:--</div>
+            <div class="clock-date nav-text" id="clock-d"></div>
+        </div>
+    </div>
+</nav>
+
+<!-- ════ MAIN ════ -->
+<main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div id="page-dashboard" class="page active">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" id="greet-title">Bienvenido 👋</h1>
+                <p style="color:var(--text-muted);font-size:13px;margin-top:4px" id="greet-sub"></p>
+            </div>
+            <button class="btn btn-outline" onclick="navigate('settings')">⚙️ Configurar</button>
+        </div>
+
+        <div class="grid-4" style="margin-bottom:20px">
+            <div class="stat-card">
+                <div class="stat-value" id="s-today">–</div>
+                <div class="stat-label">Eventos hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="s-week">–</div>
+                <div class="stat-label">Esta semana</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="s-notes">0</div>
+                <div class="stat-label">Apuntes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="s-links">0</div>
+                <div class="stat-label">Links guardados</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                    <span style="font-weight:700;font-size:14px">📆 Próximos eventos</span>
+                    <button class="btn btn-outline" style="font-size:11px;padding:5px 10px" onclick="navigate('calendar')">Ver calendario</button>
+                </div>
+                <div id="dash-events">
+                    <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px">
+                        Conectá tu Calendario Apple en <strong style="color:var(--text);cursor:pointer" onclick="navigate('settings')">Configuración</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                    <span style="font-weight:700;font-size:14px">🔗 Accesos rápidos</span>
+                    <button class="btn btn-outline" style="font-size:11px;padding:5px 10px" onclick="navigate('links')">Editar</button>
+                </div>
+                <div id="dash-links">
+                    <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px">
+                        Agregá links en <strong style="color:var(--text);cursor:pointer" onclick="navigate('links')">Accesos Rápidos</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CALENDAR ── -->
+    <div id="page-calendar" class="page">
+        <div class="page-header">
+            <h1 class="page-title">Calendario</h1>
+            <div class="cal-nav">
+                <button class="btn btn-outline" onclick="prevMonth()">‹</button>
+                <span id="cal-label"></span>
+                <button class="btn btn-outline" onclick="nextMonth()">›</button>
+            </div>
+        </div>
+        <div class="grid-2">
+            <div class="card">
+                <div class="calendar-grid" id="cal-grid"></div>
+            </div>
+            <div class="card">
+                <div style="font-weight:700;font-size:14px;margin-bottom:14px">
+                    Eventos — <span id="sel-date-lbl" style="color:var(--text-muted);font-weight:400;font-size:13px">seleccioná un día</span>
+                </div>
+                <div id="day-events">
+                    <div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">
+                        Hacé click en un día
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="info-box" style="max-width:700px">
+            💡 <strong>Cómo conectar tu Calendario de Apple:</strong> Abrí Calendario en tu iPhone → tocá el calendario que querés → "Compartir calendario" → activá "Calendario público" → copiá el link → pegalo en <span style="color:var(--accent2);cursor:pointer" onclick="navigate('settings')">Configuración</span>.
+        </div>
+    </div>
+
+    <!-- ── LINKS ── -->
+    <div id="page-links" class="page">
+        <div class="page-header">
+            <h1 class="page-title">Accesos Rápidos</h1>
+            <button class="btn btn-primary" onclick="showLinkModal()">+ Agregar link</button>
+        </div>
+        <div class="grid-3" id="links-grid"></div>
+    </div>
+
+    <!-- ── NOTES ── -->
+    <div id="page-notes" class="page">
+        <div class="page-header">
+            <h1 class="page-title">Mis Apuntes</h1>
+            <button class="btn btn-primary" onclick="document.getElementById('file-inp').click()">+ Subir archivo</button>
+            <input type="file" id="file-inp" style="display:none" accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.xlsx,.pptx" multiple onchange="handleFiles(this.files)">
+        </div>
+
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-inp').click()">
+            <div class="drop-zone-icon">📎</div>
+            <p style="font-weight:600;font-size:14px">Arrastrá tus archivos acá o hacé click</p>
+            <p style="font-size:12px;margin-top:4px">PDF, Word, imágenes, texto…</p>
+        </div>
+
+        <div class="search-row">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="note-search" placeholder="Buscar apuntes..." oninput="filterNotes()">
+            </div>
+            <select class="form-input" style="width:200px" id="subj-filter" onchange="filterNotes()">
+                <option value="">Todas las materias</option>
+            </select>
+        </div>
+
+        <div class="grid-3" id="notes-grid"></div>
+    </div>
+
+    <!-- ── TOOLS ── -->
+    <div id="page-tools" class="page">
+        <h1 class="page-title" style="margin-bottom:20px">Herramientas</h1>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(this,'t-conv')">🔄 Conversor</div>
+            <div class="tab" onclick="switchTab(this,'t-calc')">🔢 Calculadora</div>
+            <div class="tab" onclick="switchTab(this,'t-trig')">📐 Trigonometría</div>
+            <div class="tab" onclick="switchTab(this,'t-stats')">📊 Estadística</div>
+            <div class="tab" onclick="switchTab(this,'t-form')">📋 Fórmulas</div>
+            <div class="tab" onclick="switchTab(this,'t-apis')">🌐 Recursos</div>
+            <div class="tab" onclick="switchTab(this,'t-code')">💻 Código</div>
+        </div>
+
+        <!-- Conversor -->
+        <div id="t-conv">
+            <div class="grid-2">
+                <div class="tool-card">
+                    <div class="tool-title">Conversor de unidades</div>
+                    <div class="form-group">
+                        <label class="form-label">Categoría</label>
+                        <select class="form-input" id="cv-cat" onchange="updateConvUnits()">
+                            <option value="length">Longitud</option>
+                            <option value="weight">Masa / Peso</option>
+                            <option value="temp">Temperatura</option>
+                            <option value="area">Área</option>
+                            <option value="volume">Volumen</option>
+                            <option value="speed">Velocidad</option>
+                            <option value="energy">Energía</option>
+                            <option value="pressure">Presión</option>
+                            <option value="data">Datos digitales</option>
+                            <option value="angle">Ángulos</option>
+                        </select>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end">
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">De</label>
+                            <select class="form-input" id="cv-from" onchange="doConvert()"></select>
+                        </div>
+                        <button class="btn btn-outline" style="margin-bottom:0;padding:9px 10px" onclick="swapUnits()">⇄</button>
+                        <div class="form-group" style="margin:0">
+                            <label class="form-label">A</label>
+                            <select class="form-input" id="cv-to" onchange="doConvert()"></select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:10px">
+                        <label class="form-label">Valor</label>
+                        <input class="form-input" type="number" id="cv-val" value="1" oninput="doConvert()">
+                    </div>
+                    <div class="tool-result" id="cv-result">–</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-title">Tabla de conversión rápida</div>
+                    <div id="cv-table" style="font-size:13px"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculadora -->
+        <div id="t-calc" style="display:none">
+            <div class="grid-2">
+                <div class="tool-card">
+                    <div class="tool-title">Calculadora científica</div>
+                    <input id="calc-display" value="0" readonly>
+                    <div id="calc-grid"></div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-title">Historial</div>
+                    <div id="calc-hist" style="font-size:13px;color:var(--text-muted);font-family:monospace;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trigonometría -->
+        <div id="t-trig" style="display:none">
+            <div class="grid-2">
+                <div class="tool-card">
+                    <div class="tool-title">Funciones trigonométricas</div>
+                    <div class="form-group">
+                        <label class="form-label">Ángulo</label>
+                        <input class="form-input" type="number" id="trig-a" value="45" oninput="calcTrig()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unidad</label>
+                        <select class="form-input" id="trig-u" onchange="calcTrig()">
+                            <option value="deg">Grados (°)</option>
+                            <option value="rad">Radianes (rad)</option>
+                        </select>
+                    </div>
+                    <div class="tool-result" id="trig-res"></div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-title">Ley de senos y cosenos</div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Ingresá los datos conocidos del triángulo:</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+                        <div><label class="form-label">Lado a</label><input class="form-input" type="number" id="tri-a" oninput="calcTriangle()" placeholder="–"></div>
+                        <div><label class="form-label">Lado b</label><input class="form-input" type="number" id="tri-b" oninput="calcTriangle()" placeholder="–"></div>
+                        <div><label class="form-label">Lado c</label><input class="form-input" type="number" id="tri-c" oninput="calcTriangle()" placeholder="–"></div>
+                        <div><label class="form-label">Ángulo A°</label><input class="form-input" type="number" id="tri-A" oninput="calcTriangle()" placeholder="–"></div>
+                        <div><label class="form-label">Ángulo B°</label><input class="form-input" type="number" id="tri-B" oninput="calcTriangle()" placeholder="–"></div>
+                        <div><label class="form-label">Ángulo C°</label><input class="form-input" type="number" id="tri-C" oninput="calcTriangle()" placeholder="–"></div>
+                    </div>
+                    <div class="tool-result" id="tri-res" style="margin-top:10px">Ingresá al menos 3 valores conocidos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadística -->
+        <div id="t-stats" style="display:none">
+            <div class="grid-2">
+                <div class="tool-card">
+                    <div class="tool-title">Estadística descriptiva</div>
+                    <div class="form-group">
+                        <label class="form-label">Datos (separados por coma o espacio)</label>
+                        <textarea class="form-input" id="stats-in" rows="5" placeholder="Ej: 2.5, 3.7, 1.2, 4.8, 3.3..." oninput="calcStats()"></textarea>
+                    </div>
+                    <div class="tool-result" id="stats-res">Ingresá datos para analizar</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-title">Combinatoria</div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Permutaciones y combinaciones</p>
+                    <div class="form-group">
+                        <label class="form-label">n (total)</label>
+                        <input class="form-input" type="number" id="comb-n" value="10" min="0" oninput="calcComb()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">r (elegidos)</label>
+                        <input class="form-input" type="number" id="comb-r" value="3" min="0" oninput="calcComb()">
+                    </div>
+                    <div class="tool-result" id="comb-res"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fórmulas -->
+        <div id="t-form" style="display:none" id="t-form">
+            <div class="grid-3" id="formulas-grid"></div>
+        </div>
+
+        <!-- Recursos / APIs -->
+        <div id="t-apis" style="display:none">
+            <div class="grid-3" id="apis-grid"></div>
+        </div>
+
+        <!-- CODE REFERENCE TAB -->
+        <div id="t-code" style="display:none">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+                <span style="font-size:13px;color:var(--text-muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase">Lenguaje:</span>
+                <div id="lang-bar" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+                <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="font-size:12px;color:var(--text-muted)">Categoría:</span>
+                    <select class="form-input" id="cat-filter" style="width:200px" onchange="renderCodeRef()"></select>
+                </div>
+            </div>
+            <div class="search-box" style="margin-bottom:18px;max-width:420px">
+                <span style="color:var(--text-muted)">🔍</span>
+                <input type="text" id="code-search" placeholder="Buscar snippet..." oninput="renderCodeRef()">
+            </div>
+            <div id="code-ref-grid"></div>
+        </div>
+
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div id="page-settings" class="page">
+        <h1 class="page-title" style="margin-bottom:24px">Configuración</h1>
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:580px">
+
+            <div class="card">
+                <div style="font-weight:700;margin-bottom:16px;font-size:15px">📅 Calendario Apple (iCal)</div>
+                <div class="form-group">
+                    <label class="form-label">URL de tu calendario (webcal:// o https://)</label>
+                    <input class="form-input" type="text" id="ical-inp" placeholder="webcal://p06-caldav.icloud.com/...">
+                </div>
+                <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+                    📱 <strong style="color:var(--text)">iPhone:</strong> Calendario → toca el ícono ⓘ del calendario → "Compartir calendario" → "Calendario público" → Copiar enlace
+                </p>
+                <button class="btn btn-primary" onclick="saveIcal()">Sincronizar calendario</button>
+                <div id="ical-status" style="margin-top:8px;font-size:12px"></div>
+            </div>
+
+            <div class="card">
+                <div style="font-weight:700;margin-bottom:16px;font-size:15px">👤 Mi perfil</div>
+                <div class="form-group">
+                    <label class="form-label">Tu nombre</label>
+                    <input class="form-input" type="text" id="uname-inp" placeholder="Marcos">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Carrera</label>
+                    <input class="form-input" type="text" id="ucareer-inp" placeholder="Ingeniería en Sistemas">
+                </div>
+                <button class="btn btn-primary" onclick="saveProfile()">Guardar perfil</button>
+            </div>
+
+            <div class="card">
+                <div style="font-weight:700;margin-bottom:12px;font-size:15px">🎨 Apariencia</div>
+                <div style="display:flex;gap:8px">
+                    <button class="btn btn-outline" onclick="setTheme('dark')">🌙 Oscuro</button>
+                    <button class="btn btn-outline" onclick="setTheme('light')">☀️ Claro</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="font-weight:700;margin-bottom:10px;font-size:15px">💾 Copia de seguridad</div>
+                <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Tus datos se guardan en este navegador. Exportalos para no perderlos o para importarlos en otro dispositivo.</p>
+                <div style="display:flex;gap:8px">
+                    <button class="btn btn-outline" onclick="exportData()">📤 Exportar JSON</button>
+                    <button class="btn btn-outline" onclick="document.getElementById('import-inp').click()">📥 Importar JSON</button>
+                    <input type="file" id="import-inp" accept=".json" style="display:none" onchange="importData(event)">
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="font-weight:700;margin-bottom:10px;font-size:15px;color:var(--danger)">⚠️ Datos</div>
+                <button class="btn btn-danger" onclick="clearAll()">🗑 Borrar todos los datos</button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- ════ MODAL – Link ════ -->
+<div id="link-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal">
+        <div class="modal-title" id="lm-title">Agregar acceso rápido</div>
+        <input type="hidden" id="lm-edit-idx" value="-1">
+        <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input class="form-input" type="text" id="lm-name" placeholder="Aula Virtual, GitHub...">
+        </div>
+        <div class="form-group">
+            <label class="form-label">URL</label>
+            <input class="form-input" type="text" id="lm-url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Ícono (emoji)</label>
+            <input class="form-input" type="text" id="lm-icon" placeholder="🎓" maxlength="4" value="🔗">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Color de fondo</label>
+            <input type="color" id="lm-color" value="#7c6af7" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="document.getElementById('link-modal').style.display='none'">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveLink()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ════ MODAL – Note ════ -->
+<div id="note-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal" style="width:600px;max-width:96vw">
+        <div class="modal-title" id="nm-title"></div>
+        <div id="nm-content"></div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="document.getElementById('note-modal').style.display='none'">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ════════════════════════════════════
+//  STATE
+// ════════════════════════════════════
+const DEFAULT = {
+    theme: 'dark', icalUrl: '', userName: 'Estudiante', userCareer: '',
+    links: [], notes: [], events: [],
+    calYear: new Date().getFullYear(), calMonth: new Date().getMonth(),
+    selDate: null
+};
+let S = { ...DEFAULT };
+
+function loadState() {
+    try {
+        const raw = localStorage.getItem('mdb-v2');
+        if (raw) S = { ...DEFAULT, ...JSON.parse(raw) };
+    } catch(e) {}
+}
+function saveState() {
+    try { localStorage.setItem('mdb-v2', JSON.stringify(S)); } catch(e) {}
+}
+
+// ════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════
+const PAGES = ['dashboard','calendar','links','notes','tools','settings'];
+function navigate(id) {
+    PAGES.forEach(p => {
+        document.getElementById('page-'+p).classList.toggle('active', p===id);
+    });
+    document.querySelectorAll('.nav-item').forEach((el,i) => {
+        el.classList.toggle('active', PAGES[i]===id);
+    });
+    if (id==='calendar') renderCalendar();
+    if (id==='dashboard') updateDashboard();
+    if (id==='links') renderLinks();
+    if (id==='notes') renderNotes();
+}
+
+// ════════════════════════════════════
+//  CLOCK
+// ════════════════════════════════════
+function tick() {
+    const n = new Date();
+    const t = document.getElementById('clock-t');
+    const d = document.getElementById('clock-d');
+    if(t) t.textContent = n.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    if(d) d.textContent = n.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+}
+setInterval(tick,1000); tick();
+
+// ════════════════════════════════════
+//  THEME
+// ════════════════════════════════════
+function setTheme(t) {
+    S.theme = t;
+    document.documentElement.setAttribute('data-theme', t);
+    const ic = document.getElementById('theme-icon');
+    const tx = document.getElementById('theme-text');
+    if(ic) ic.textContent = t==='light'?'🌙':'☀️';
+    if(tx) tx.textContent = t==='light'?'Modo oscuro':'Modo claro';
+    saveState();
+}
+function toggleTheme() { setTheme(S.theme==='dark'?'light':'dark'); }
+
+// ════════════════════════════════════
+//  CALENDAR
+// ════════════════════════════════════
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS_H = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+function renderCalendar() {
+    const grid = document.getElementById('cal-grid');
+    const lbl = document.getElementById('cal-label');
+    if(!grid) return;
+    lbl.textContent = MONTHS[S.calMonth] + ' ' + S.calYear;
+
+    const today = new Date();
+    const first = new Date(S.calYear, S.calMonth, 1);
+    const last = new Date(S.calYear, S.calMonth+1, 0);
+    let startDow = (first.getDay()+6)%7; // Mon=0
+
+    let html = DAYS_H.map(d=>`<div class="cal-day-header">${d}</div>`).join('');
+
+    // prev month padding
+    for(let i=0;i<startDow;i++){
+        const pd = new Date(S.calYear, S.calMonth, -(startDow-1-i));
+        html+=`<div class="cal-day other-month"><div class="day-num">${pd.getDate()}</div></div>`;
+    }
+
+    for(let d=1;d<=last.getDate();d++){
+        const date = new Date(S.calYear, S.calMonth, d);
+        const isToday = date.toDateString()===today.toDateString();
+        const isSel = S.selDate && date.toDateString()===new Date(S.selDate).toDateString();
+        const evs = eventsForDate(date);
+        const dots = evs.length>0 ? `<div class="event-dots">${'<div class="event-dot"></div>'.repeat(Math.min(evs.length,3))}</div>` : '';
+        html+=`<div class="cal-day ${isToday?'today':''} ${isSel?'selected':''}"
+            onclick="selectDay(${S.calYear},${S.calMonth},${d})">
+            <div class="day-num">${d}</div>${dots}</div>`;
+    }
+    grid.innerHTML = html;
+}
+
+function selectDay(y,m,d){
+    S.selDate = new Date(y,m,d).toISOString();
+    const lbl = document.getElementById('sel-date-lbl');
+    const date = new Date(y,m,d);
+    if(lbl) lbl.textContent = date.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+    renderDayEvents(date);
+    renderCalendar();
+}
+
+function renderDayEvents(date){
+    const el = document.getElementById('day-events');
+    if(!el) return;
+    const evs = eventsForDate(date).sort((a,b)=>new Date(a.start)-new Date(b.start));
+    if(!evs.length){
+        el.innerHTML='<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:16px">Sin eventos este día</div>';
+        return;
+    }
+    el.innerHTML = evs.map(e=>`
+        <div class="event-item">
+            <div class="event-time">${fmtTime(e)}</div>
+            <div>
+                <div class="event-title">${e.summary||'Sin título'}</div>
+                ${e.location?`<div class="event-loc">📍 ${e.location}</div>`:''}
+            </div>
+        </div>`).join('');
+}
+
+function eventsForDate(date){
+    return S.events.filter(e=>{
+        if(!e.start) return false;
+        const s=new Date(e.start);
+        return s.getFullYear()===date.getFullYear()&&s.getMonth()===date.getMonth()&&s.getDate()===date.getDate();
+    });
+}
+
+function fmtTime(e){
+    if(!e.start) return '';
+    if(e.allDay) return 'Todo el día';
+    return new Date(e.start).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function prevMonth(){
+    if(S.calMonth===0){S.calMonth=11;S.calYear--;}else S.calMonth--;
+    renderCalendar();
+}
+function nextMonth(){
+    if(S.calMonth===11){S.calMonth=0;S.calYear++;}else S.calMonth++;
+    renderCalendar();
+}
+
+// ════════════════════════════════════
+//  iCAL SYNC
+// ════════════════════════════════════
+async function saveIcal(){
+    const url = document.getElementById('ical-inp').value.trim();
+    if(!url) return;
+    S.icalUrl = url;
+    saveState();
+    await fetchIcal(url);
+}
+
+async function fetchIcal(url){
+    const st = document.getElementById('ical-status');
+    if(st) st.textContent='⏳ Sincronizando...';
+    const http = url.replace(/^webcal:\/\//i,'https://');
+    const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(http)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(http)}`
+    ];
+    for(const p of proxies){
+        try{
+            const r = await fetch(p);
+            if(!r.ok) continue;
+            const txt = await r.text();
+            if(!txt.includes('BEGIN:VCALENDAR')) continue;
+            parseIcal(txt);
+            if(st) st.innerHTML=`<span style="color:var(--success)">✅ Sincronizado — ${S.events.length} eventos</span>`;
+            saveState();
+            updateDashboard();
+            renderCalendar();
+            return;
+        }catch(e){}
+    }
+    if(st) st.innerHTML=`<span style="color:var(--danger)">❌ No se pudo conectar. Verificá que el calendario sea público.</span>`;
+}
+
+function parseIcal(txt){
+    const lines = txt.replace(/\r\n|\r/g,'\n').split('\n');
+    // Unfold
+    const ul=[];
+    for(const l of lines){
+        if((l.startsWith(' ')||l.startsWith('\t'))&&ul.length) ul[ul.length-1]+=l.slice(1);
+        else ul.push(l);
+    }
+    const events=[];
+    let cur=null;
+    for(const l of ul){
+        if(l==='BEGIN:VEVENT'){cur={};}
+        else if(l==='END:VEVENT'&&cur){events.push(cur);cur=null;}
+        else if(cur){
+            const ci=l.indexOf(':');
+            if(ci<0) continue;
+            const key=l.slice(0,ci).split(';')[0].toUpperCase();
+            const val=l.slice(ci+1);
+            if(key==='SUMMARY') cur.summary=decodeIcalText(val);
+            else if(key==='DTSTART'){cur.start=parseIcalDt(l.slice(ci+1),l.slice(0,ci));cur.allDay=!l.includes('T');}
+            else if(key==='DTEND') cur.end=parseIcalDt(val,'');
+            else if(key==='LOCATION') cur.location=decodeIcalText(val);
+            else if(key==='UID') cur.uid=val;
+        }
+    }
+    const now=new Date();
+    const past=new Date(now-30*864e5);
+    const future=new Date(+now+90*864e5);
+    S.events=events.filter(e=>e.start&&new Date(e.start)>=past&&new Date(e.start)<=future);
+}
+
+function decodeIcalText(s){ return s.replace(/\\n/g,'\n').replace(/\\,/g,',').replace(/\\;/g,';').replace(/\\\\/g,'\\'); }
+
+function parseIcalDt(val,params){
+    val=val.trim();
+    if(val.length===8){
+        return new Date(+val.slice(0,4),+val.slice(4,6)-1,+val.slice(6,8)).toISOString();
+    }
+    const y=val.slice(0,4),mo=val.slice(4,6),d=val.slice(6,8);
+    const h=val.slice(9,11),mi=val.slice(11,13),s=val.slice(13,15);
+    if(val.endsWith('Z')) return new Date(`${y}-${mo}-${d}T${h}:${mi}:${s}Z`).toISOString();
+    return new Date(`${y}-${mo}-${d}T${h}:${mi}:${s}`).toISOString();
+}
+
+// ════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════
+function updateDashboard(){
+    const now=new Date();
+    const h=now.getHours();
+    const titleEl=document.getElementById('greet-title');
+    const subEl=document.getElementById('greet-sub');
+    const g=h<12?'Buenos días':h<20?'Buenas tardes':'Buenas noches';
+    if(titleEl) titleEl.textContent=`${g}, ${S.userName} 👋`;
+    if(subEl) subEl.textContent=`${S.userCareer?S.userCareer+' · ':''}${now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}`;
+
+    const weekStart=new Date(now);
+    weekStart.setDate(now.getDate()-((now.getDay()+6)%7));
+    weekStart.setHours(0,0,0,0);
+    const weekEnd=new Date(+weekStart+7*864e5);
+
+    const todayEvs=S.events.filter(e=>eventsForDate(now).includes(e)||e===eventsForDate(now).find(x=>x===e));
+    // simpler
+    const todayCount=eventsForDate(now).length;
+    const weekCount=S.events.filter(e=>e.start&&new Date(e.start)>=weekStart&&new Date(e.start)<weekEnd).length;
+
+    const se=document.getElementById('s-today'),sw=document.getElementById('s-week');
+    const sn=document.getElementById('s-notes'),sl=document.getElementById('s-links');
+    if(se) se.textContent=todayCount;
+    if(sw) sw.textContent=weekCount;
+    if(sn) sn.textContent=S.notes.length;
+    if(sl) sl.textContent=S.links.length;
+
+    // Upcoming events
+    const upcoming=S.events.filter(e=>e.start&&new Date(e.start)>=now)
+        .sort((a,b)=>new Date(a.start)-new Date(b.start)).slice(0,5);
+    const dEl=document.getElementById('dash-events');
+    if(dEl){
+        if(!upcoming.length){
+            dEl.innerHTML=`<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px">
+                ${S.icalUrl?'No hay eventos próximos':'Conectá tu Calendario Apple en <strong style="color:var(--text);cursor:pointer" onclick="navigate(\'settings\')">Configuración</strong>'}
+            </div>`;
+        } else {
+            const tom=new Date(+now+864e5);
+            dEl.innerHTML=upcoming.map(e=>{
+                const d=new Date(e.start);
+                const isT=d.toDateString()===now.toDateString();
+                const isTom=d.toDateString()===tom.toDateString();
+                const dl=isT?'Hoy':isTom?'Mañana':d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+                return `<div class="event-item">
+                    <div class="event-time">${dl}${!e.allDay?' '+fmtTime(e):''}</div>
+                    <div class="event-title">${e.summary||'Sin título'}</div>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    // Quick links preview
+    const lEl=document.getElementById('dash-links');
+    if(lEl){
+        if(!S.links.length){
+            lEl.innerHTML=`<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px">
+                Agregá links en <strong style="color:var(--text);cursor:pointer" onclick="navigate('links')">Accesos Rápidos</strong>
+            </div>`;
+        } else {
+            lEl.innerHTML=S.links.slice(0,6).map(l=>`
+                <a href="${l.url}" target="_blank" rel="noopener"
+                    style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;text-decoration:none;color:var(--text);transition:background 0.12s"
+                    onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">
+                    <span style="font-size:19px">${l.icon||'🔗'}</span>
+                    <span style="font-size:13px;font-weight:600">${l.name}</span>
+                </a>`).join('');
+        }
+    }
+}
+
+// ════════════════════════════════════
+//  LINKS
+// ════════════════════════════════════
+function renderLinks(){
+    const grid=document.getElementById('links-grid');
+    if(!grid) return;
+    if(!S.links.length){
+        grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted)">
+            <div style="font-size:44px;margin-bottom:8px">🔗</div>
+            <p style="font-size:14px">Todavía no hay links. ¡Agregá el aula, GitHub, lo que uses!</p>
+        </div>`;
+        return;
+    }
+    grid.innerHTML=S.links.map((l,i)=>`
+        <div style="position:relative">
+            <a class="link-card" href="${l.url}" target="_blank" rel="noopener">
+                <div class="link-icon" style="background:${l.color||'#7c6af7'}">${l.icon||'🔗'}</div>
+                <div class="link-info">
+                    <div class="link-name">${l.name}</div>
+                    <div class="link-url">${l.url.replace(/^https?:\/\//,'')}</div>
+                </div>
+            </a>
+            <div style="position:absolute;top:8px;right:8px;display:flex;gap:4px">
+                <button class="btn btn-outline" style="padding:3px 7px;font-size:11px" onclick="event.stopPropagation();editLink(${i})">✏️</button>
+                <button class="btn btn-danger" style="padding:3px 7px;font-size:11px" onclick="event.stopPropagation();deleteLink(${i})">✕</button>
+            </div>
+        </div>`).join('');
+}
+
+function showLinkModal(idx=-1){
+    const m=document.getElementById('link-modal');
+    const t=document.getElementById('lm-title');
+    document.getElementById('lm-edit-idx').value=idx;
+    if(idx>=0){
+        const l=S.links[idx];
+        t.textContent='Editar link';
+        document.getElementById('lm-name').value=l.name;
+        document.getElementById('lm-url').value=l.url;
+        document.getElementById('lm-icon').value=l.icon||'🔗';
+        document.getElementById('lm-color').value=l.color||'#7c6af7';
+    } else {
+        t.textContent='Agregar acceso rápido';
+        document.getElementById('lm-name').value='';
+        document.getElementById('lm-url').value='';
+        document.getElementById('lm-icon').value='🔗';
+        document.getElementById('lm-color').value='#7c6af7';
+    }
+    m.style.display='flex';
+    document.getElementById('lm-name').focus();
+}
+function editLink(i){ showLinkModal(i); }
+
+function saveLink(){
+    const name=document.getElementById('lm-name').value.trim();
+    let url=document.getElementById('lm-url').value.trim();
+    if(!name||!url) return;
+    if(!/^https?:\/\//i.test(url)) url='https://'+url;
+    const icon=document.getElementById('lm-icon').value.trim()||'🔗';
+    const color=document.getElementById('lm-color').value;
+    const idx=parseInt(document.getElementById('lm-edit-idx').value);
+    if(idx>=0) S.links[idx]={name,url,icon,color};
+    else S.links.push({name,url,icon,color});
+    saveState();
+    renderLinks();
+    updateDashboard();
+    document.getElementById('link-modal').style.display='none';
+}
+
+function deleteLink(i){
+    if(!confirm('¿Eliminar este link?')) return;
+    S.links.splice(i,1);
+    saveState();
+    renderLinks();
+    updateDashboard();
+}
+
+// ════════════════════════════════════
+//  NOTES
+// ════════════════════════════════════
+function handleFiles(files){
+    Array.from(files).forEach(file=>{
+        const subj=prompt(`¿A qué materia pertenece "${file.name}"?\n(dejalo vacío si no querés clasificarlo)`)||'Sin clasificar';
+        const reader=new FileReader();
+        reader.onload=e=>{
+            S.notes.push({
+                id: Date.now()+Math.random(),
+                name: file.name,
+                subject: subj,
+                date: new Date().toISOString(),
+                type: file.type,
+                size: file.size,
+                data: file.size<4*1024*1024?e.target.result:null
+            });
+            saveState();
+            renderNotes();
+            updateSubjFilter();
+            updateDashboard();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function fileIcon(type,name){
+    if(type.includes('pdf')||name.endsWith('.pdf')) return '📕';
+    if(type.includes('word')||name.endsWith('.docx')) return '📘';
+    if(type.includes('image')) return '🖼️';
+    if(type.includes('presentation')||name.endsWith('.pptx')) return '📊';
+    if(type.includes('spreadsheet')||name.endsWith('.xlsx')) return '📗';
+    if(name.endsWith('.md')||name.endsWith('.txt')) return '📄';
+    return '📎';
+}
+
+function fmtSize(b){ return b>1048576?(b/1048576).toFixed(1)+'MB':(b/1024).toFixed(0)+'KB'; }
+
+function renderNotes(list){
+    const grid=document.getElementById('notes-grid');
+    if(!grid) return;
+    const notes=list||S.notes;
+    if(!notes.length){
+        grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted)">
+            <div style="font-size:44px;margin-bottom:8px">📝</div>
+            <p style="font-size:14px">Subí tus apuntes arrastrándolos o con el botón de arriba</p>
+        </div>`;
+        return;
+    }
+    grid.innerHTML=notes.map(n=>`
+        <div class="note-card">
+            <div class="note-icon">${fileIcon(n.type,n.name)}</div>
+            <div class="note-title">${n.name}</div>
+            <span class="subject-tag">${n.subject}</span>
+            <div class="note-meta">${new Date(n.date).toLocaleDateString('es-AR')} · ${fmtSize(n.size)}</div>
+            <div class="note-actions">
+                ${n.data?`<button class="btn btn-outline" style="font-size:11px;padding:5px 9px" onclick="openNote('${n.id}')">👁 Ver</button>`:''}
+                ${n.data?`<a href="${n.data}" download="${n.name}" class="btn btn-outline" style="font-size:11px;padding:5px 9px;text-decoration:none">⬇ Descargar</a>`:''}
+                <button class="btn btn-danger" style="font-size:11px;padding:5px 9px;margin-left:auto" onclick="deleteNote('${n.id}')">✕</button>
+            </div>
+        </div>`).join('');
+}
+
+function openNote(id){
+    const n=S.notes.find(x=>String(x.id)===String(id));
+    if(!n||!n.data) return;
+    document.getElementById('nm-title').textContent=n.name;
+    const c=document.getElementById('nm-content');
+    if(n.type.includes('image')) c.innerHTML=`<img src="${n.data}" style="max-width:100%;border-radius:8px">`;
+    else if(n.type.includes('pdf')) c.innerHTML=`<iframe src="${n.data}" style="width:100%;height:450px;border:none;border-radius:8px"></iframe>`;
+    else c.innerHTML=`<p style="color:var(--text-muted);font-size:13px">Vista previa no disponible.</p>
+        <a href="${n.data}" download="${n.name}" class="btn btn-primary" style="display:inline-block;margin-top:12px;text-decoration:none">⬇ Descargar</a>`;
+    document.getElementById('note-modal').style.display='flex';
+}
+
+function deleteNote(id){
+    if(!confirm('¿Eliminar este apunte?')) return;
+    S.notes=S.notes.filter(n=>String(n.id)!==String(id));
+    saveState(); renderNotes(); updateDashboard(); updateSubjFilter();
+}
+
+function filterNotes(){
+    const q=(document.getElementById('note-search').value||'').toLowerCase();
+    const s=document.getElementById('subj-filter').value;
+    renderNotes(S.notes.filter(n=>n.name.toLowerCase().includes(q)&&(!s||n.subject===s)));
+}
+
+function updateSubjFilter(){
+    const sel=document.getElementById('subj-filter');
+    if(!sel) return;
+    const subjs=[...new Set(S.notes.map(n=>n.subject).filter(Boolean))];
+    const cur=sel.value;
+    sel.innerHTML='<option value="">Todas las materias</option>'+
+        subjs.map(s=>`<option value="${s}"${s===cur?' selected':''}>${s}</option>`).join('');
+}
+
+// Drag & drop
+const dz=document.getElementById('drop-zone');
+if(dz){
+    dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+    dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+    dz.addEventListener('drop',e=>{
+        e.preventDefault(); dz.classList.remove('drag-over');
+        if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+    });
+}
+
+// ════════════════════════════════════
+//  TOOLS – Unit Converter
+// ════════════════════════════════════
+const UNITS={
+    length:{m:1,km:1e3,cm:0.01,mm:0.001,µm:1e-6,mi:1609.344,ft:0.3048,'in':0.0254,yd:0.9144,nmi:1852},
+    weight:{kg:1,g:1e-3,lb:0.453592,oz:0.0283495,mg:1e-6,t:1e3,st:6.35029},
+    area:{'m²':1,'km²':1e6,'cm²':1e-4,ha:1e4,'ft²':0.092903,'mi²':2589988,'in²':6.4516e-4},
+    volume:{L:1,mL:1e-3,'m³':1e3,'cm³':1e-3,gal:3.78541,'fl oz':0.0295735,cup:0.236588,qt:0.946353},
+    speed:{'m/s':1,'km/h':1/3.6,mph:0.44704,knot:0.514444,'ft/s':0.3048},
+    energy:{J:1,kJ:1e3,cal:4.184,kcal:4184,Wh:3600,kWh:3.6e6,eV:1.60218e-19,BTU:1055.06},
+    pressure:{Pa:1,kPa:1e3,MPa:1e6,bar:1e5,atm:101325,psi:6894.76,mmHg:133.322},
+    data:{B:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776},
+    angle:{deg:1,rad:180/Math.PI,grad:0.9,arcmin:1/60,arcsec:1/3600},
+    temp:{}
+};
+
+function updateConvUnits(){
+    const cat=document.getElementById('cv-cat').value;
+    const from=document.getElementById('cv-from');
+    const to=document.getElementById('cv-to');
+    let units;
+    if(cat==='temp') units=['°C','°F','K'];
+    else units=Object.keys(UNITS[cat]||{});
+    from.innerHTML=units.map(u=>`<option>${u}</option>`).join('');
+    to.innerHTML=units.map(u=>`<option>${u}</option>`).join('');
+    if(units[1]) to.value=units[1];
+    doConvert();
+}
+
+function swapUnits(){
+    const f=document.getElementById('cv-from');
+    const t=document.getElementById('cv-to');
+    const tmp=f.value; f.value=t.value; t.value=tmp;
+    doConvert();
+}
+
+function doConvert(){
+    const cat=document.getElementById('cv-cat').value;
+    const val=parseFloat(document.getElementById('cv-val').value);
+    const from=document.getElementById('cv-from').value;
+    const to=document.getElementById('cv-to').value;
+    const res=document.getElementById('cv-result');
+    const tbl=document.getElementById('cv-table');
+    if(isNaN(val)){res.textContent='–';return;}
+
+    let out;
+    if(cat==='temp'){
+        out=convertTemp(val,from,to);
+        res.textContent=`${val} ${from} = ${fmt(out)} ${to}`;
+        if(tbl) tbl.innerHTML=`<table style="width:100%;font-size:12px;border-collapse:collapse">`+
+            ['°C','°F','K'].map(u=>`<tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:6px 4px;color:var(--text-muted)">${u}</td>
+                <td style="padding:6px 4px;text-align:right;font-family:monospace">${fmt(convertTemp(val,from,u))}</td>
+            </tr>`).join('')+'</table>';
+        return;
+    }
+
+    const data=UNITS[cat];
+    if(!data||!data[from]||!data[to]){res.textContent='–';return;}
+    out=val*data[from]/data[to];
+    res.textContent=`${val} ${from} = ${fmt(out)} ${to}`;
+
+    if(tbl){
+        const keys=Object.keys(data).slice(0,8);
+        tbl.innerHTML=`<table style="width:100%;font-size:12px;border-collapse:collapse">`+
+            keys.map(u=>`<tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:5px 4px;color:var(--text-muted)">${u}</td>
+                <td style="padding:5px 4px;text-align:right;font-family:monospace;color:${u===to?'var(--accent2)':'inherit'}">${fmt(val*data[from]/data[u])}</td>
+            </tr>`).join('')+'</table>';
+    }
+}
+
+function convertTemp(v,from,to){
+    let c;
+    if(from==='°C') c=v;
+    else if(from==='°F') c=(v-32)*5/9;
+    else if(from==='K') c=v-273.15;
+    if(to==='°C') return c;
+    if(to==='°F') return c*9/5+32;
+    if(to==='K') return c+273.15;
+    return c;
+}
+
+function fmt(n){
+    if(isNaN(n)||!isFinite(n)) return '∞';
+    if(Math.abs(n)<0.0001||Math.abs(n)>=1e8) return n.toExponential(4);
+    return parseFloat(n.toPrecision(6)).toString();
+}
+
+// ─── Calculator ───
+let calcExpr='', calcHist=[];
+function initCalc(){
+    const btns=[
+        ['C','±','%','÷','⌫'],
+        ['7','8','9','×','('],
+        ['4','5','6','−',')'],
+        ['1','2','3','+','π'],
+        ['0','.','√','sin','='],
+    ];
+    const cg=document.getElementById('calc-grid');
+    if(!cg) return;
+    cg.innerHTML=btns.flat().map(b=>{
+        const cls=b==='='?'eq':['÷','×','−','+','%'].includes(b)?'op':'';
+        return `<button class="calc-btn ${cls}" onclick="cp('${b}')">${b}</button>`;
+    }).join('');
+}
+
+function cp(b){
+    const d=document.getElementById('calc-display');
+    if(!d) return;
+    if(b==='C'){calcExpr='';d.value='0';return;}
+    if(b==='⌫'){calcExpr=calcExpr.slice(0,-1)||'';d.value=calcExpr||'0';return;}
+    if(b==='±'){calcExpr=calcExpr.startsWith('-')?calcExpr.slice(1):'-'+calcExpr;d.value=calcExpr||'0';return;}
+    if(b==='='){
+        try{
+            let ex=calcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-')
+                .replace(/π/g,Math.PI)
+                .replace(/sin\(/g,'Math.sin((Math.PI/180)*')
+                .replace(/cos\(/g,'Math.cos((Math.PI/180)*')
+                .replace(/tan\(/g,'Math.tan((Math.PI/180)*')
+                .replace(/√\(/g,'Math.sqrt(');
+            const r=Function('"use strict";return('+ex+')')();
+            const fr=fmt(r);
+            calcHist.unshift(`${calcExpr} = ${fr}`);
+            const ch=document.getElementById('calc-hist');
+            if(ch) ch.innerHTML=calcHist.slice(0,20).map(h=>`<div>${h}</div>`).join('');
+            d.value=fr; calcExpr=String(fr);
+        }catch{d.value='Error';calcExpr='';}
+        return;
+    }
+    if(b==='sin'||b==='cos'||b==='tan'||b==='√'){calcExpr+=b+'(';d.value=calcExpr;return;}
+    calcExpr+=b; d.value=calcExpr;
+}
+
+// ─── Trig ───
+function calcTrig(){
+    const a=parseFloat(document.getElementById('trig-a').value);
+    const u=document.getElementById('trig-u').value;
+    const r=document.getElementById('trig-res');
+    if(!r||isNaN(a)) return;
+    const rad=u==='deg'?a*Math.PI/180:a;
+    const u2=u==='deg'?'°':'rad';
+    r.textContent=[
+        `sin(${a}${u2}) = ${fmt(Math.sin(rad))}`,
+        `cos(${a}${u2}) = ${fmt(Math.cos(rad))}`,
+        `tan(${a}${u2}) = ${Math.abs(Math.cos(rad))<1e-10?'∞':fmt(Math.tan(rad))}`,
+        `csc(${a}${u2}) = ${Math.abs(Math.sin(rad))<1e-10?'∞':fmt(1/Math.sin(rad))}`,
+        `sec(${a}${u2}) = ${Math.abs(Math.cos(rad))<1e-10?'∞':fmt(1/Math.cos(rad))}`,
+        `cot(${a}${u2}) = ${Math.abs(Math.sin(rad))<1e-10?'∞':fmt(1/Math.tan(rad))}`,
+    ].join('\n');
+}
+
+function calcTriangle(){
+    const a=parseFloat(document.getElementById('tri-a').value)||NaN;
+    const b=parseFloat(document.getElementById('tri-b').value)||NaN;
+    const c=parseFloat(document.getElementById('tri-c').value)||NaN;
+    const A=parseFloat(document.getElementById('tri-A').value)||NaN;
+    const B=parseFloat(document.getElementById('tri-B').value)||NaN;
+    const C=parseFloat(document.getElementById('tri-C').value)||NaN;
+    const r=document.getElementById('tri-res');
+    if(!r) return;
+
+    const known=[a,b,c,A,B,C].filter(x=>!isNaN(x)).length;
+    if(known<3){r.textContent='Ingresá al menos 3 valores conocidos';return;}
+
+    try{
+        // Try to solve with law of cosines / sines
+        let fa=a,fb=b,fc=c,fA=A,fB=B,fC=C;
+        // If all 3 sides known → get angles
+        if(!isNaN(a)&&!isNaN(b)&&!isNaN(c)){
+            fA=Math.acos((b*b+c*c-a*a)/(2*b*c))*180/Math.PI;
+            fB=Math.acos((a*a+c*c-b*b)/(2*a*c))*180/Math.PI;
+            fC=180-fA-fB;
+        }
+        const area=fc&&fB?0.5*fa*fb*Math.sin(fB*Math.PI/180):NaN;
+        r.textContent=`a=${isNaN(fa)?'?':fmt(fa)}  b=${isNaN(fb)?'?':fmt(fb)}  c=${isNaN(fc)?'?':fmt(fc)}\n`+
+            `A=${isNaN(fA)?'?':fmt(fA)}°  B=${isNaN(fB)?'?':fmt(fB)}°  C=${isNaN(fC)?'?':fmt(fC)}°\n`+
+            (isNaN(area)?'':'Área = '+fmt(area));
+    }catch{r.textContent='No se puede resolver con esos datos';}
+}
+
+// ─── Stats ───
+function calcStats(){
+    const raw=document.getElementById('stats-in').value;
+    const r=document.getElementById('stats-res');
+    if(!r) return;
+    const nums=raw.split(/[\s,;]+/).map(Number).filter(n=>!isNaN(n)&&raw.trim());
+    if(!nums.length){r.textContent='Ingresá datos para analizar';return;}
+    const sum=nums.reduce((a,b)=>a+b,0);
+    const mean=sum/nums.length;
+    const sorted=[...nums].sort((a,b)=>a-b);
+    const med=nums.length%2?sorted[Math.floor(nums.length/2)]:(sorted[nums.length/2-1]+sorted[nums.length/2])/2;
+    const variance=nums.reduce((a,b)=>a+(b-mean)**2,0)/nums.length;
+    r.textContent=[
+        `n = ${nums.length}`,
+        `Suma = ${fmt(sum)}`,
+        `Media = ${fmt(mean)}`,
+        `Mediana = ${fmt(med)}`,
+        `Mínimo = ${fmt(sorted[0])}`,
+        `Máximo = ${fmt(sorted[sorted.length-1])}`,
+        `Rango = ${fmt(sorted[sorted.length-1]-sorted[0])}`,
+        `Varianza = ${fmt(variance)}`,
+        `Desv. estándar = ${fmt(Math.sqrt(variance))}`,
+    ].join('\n');
+}
+
+// ─── Combinatoria ───
+function calcComb(){
+    const n=parseInt(document.getElementById('comb-n').value);
+    const r2=parseInt(document.getElementById('comb-r').value);
+    const res=document.getElementById('comb-res');
+    if(!res||isNaN(n)||isNaN(r2)){return;}
+    if(r2>n){res.textContent='r no puede ser mayor que n';return;}
+    const fact=x=>x<=1?1:x*fact(x-1);
+    if(n>12){res.textContent='(n muy grande para calcular con precisión)';return;}
+    const P=fact(n)/fact(n-r2);
+    const C=P/fact(r2);
+    res.textContent=`P(${n},${r2}) = ${P.toLocaleString('es-AR')}\nC(${n},${r2}) = ${C.toLocaleString('es-AR')}`;
+}
+
+// ─── Formulas ───
+function renderFormulas(){
+    const el=document.getElementById('formulas-grid');
+    if(!el) return;
+    const cats=[
+        {title:'⚡ Física',items:[
+            {n:'Segunda ley de Newton',f:'F = m · a'},
+            {n:'Velocidad media',f:'v = Δx / Δt'},
+            {n:'MRU',f:'x = x₀ + v·t'},
+            {n:'MRUA',f:'x = x₀ + v₀t + ½at²'},
+            {n:'Energía cinética',f:'Ec = ½mv²'},
+            {n:'Energía potencial',f:'Ep = mgh'},
+            {n:'Ley de Ohm',f:'V = I·R'},
+            {n:'Potencia eléctrica',f:'P = V·I = I²R'},
+            {n:'Ley de Coulomb',f:'F = k·q₁q₂/r²'},
+        ]},
+        {title:'📐 Matemáticas',items:[
+            {n:'Fórmula cuadrática',f:'x = (−b ± √(b²−4ac)) / 2a'},
+            {n:'Pitágoras',f:'c² = a² + b²'},
+            {n:'Área del círculo',f:'A = π·r²'},
+            {n:'Volumen de esfera',f:'V = (4/3)π·r³'},
+            {n:'Derivada de xⁿ',f:'d/dx(xⁿ) = n·xⁿ⁻¹'},
+            {n:'Regla del producto',f:'(fg)\' = f\'g + fg\''},
+            {n:'Integral básica',f:'∫xⁿdx = xⁿ⁺¹/(n+1) + C'},
+            {n:'Serie geométrica',f:'Sn = a(1−rⁿ)/(1−r)'},
+        ]},
+        {title:'⚗️ Química',items:[
+            {n:'Gas ideal',f:'PV = nRT'},
+            {n:'pH',f:'pH = −log[H⁺]'},
+            {n:'Molaridad',f:'M = mol / L'},
+            {n:'Arrhenius',f:'k = A·e^(−Ea/RT)'},
+            {n:'Estequiometría molar',f:'n = m / M'},
+        ]},
+        {title:'💡 Electrónica',items:[
+            {n:'Resistencias en serie',f:'Rt = R₁+R₂+…+Rn'},
+            {n:'Resistencias en paralelo',f:'1/Rt = 1/R₁+1/R₂+…'},
+            {n:'Carga del capacitor',f:'Q = C·V'},
+            {n:'Ley de Faraday',f:'ε = −dΦ/dt'},
+            {n:'Potencia disipada',f:'P = I²·R'},
+        ]},
+        {title:'🧮 Álgebra lineal',items:[
+            {n:'Producto escalar',f:'a·b = |a||b|cosθ'},
+            {n:'Producto vectorial',f:'|a×b| = |a||b|sinθ'},
+            {n:'Det 2x2',f:'|A| = ad−bc'},
+            {n:'Inversa 2x2',f:'A⁻¹ = (1/|A|)·adj(A)'},
+        ]},
+    ];
+    el.innerHTML=cats.map(c=>`
+        <div class="tool-card">
+            <div class="tool-title">${c.title}</div>
+            ${c.items.map(f=>`
+                <div style="padding:7px 0;border-bottom:1px solid var(--border)">
+                    <div style="font-size:11px;color:var(--text-muted)">${f.n}</div>
+                    <div style="font-family:monospace;font-size:13px;margin-top:2px;color:var(--accent2)">${f.f}</div>
+                </div>`).join('')}
+        </div>`).join('');
+}
+
+// ─── APIs / Recursos ───
+function renderApis(){
+    const el=document.getElementById('apis-grid');
+    if(!el) return;
+    const list=[
+        {n:'WolframAlpha',d:'Motor de conocimiento y cálculos simbólicos',url:'https://www.wolframalpha.com',i:'🧮'},
+        {n:'Desmos',d:'Graficador de funciones matemáticas online',url:'https://www.desmos.com/calculator',i:'📈'},
+        {n:'GeoGebra',d:'Geometría, álgebra y cálculo interactivo',url:'https://www.geogebra.org',i:'📐'},
+        {n:'Symbolab',d:'Resolvedor de ecuaciones paso a paso',url:'https://www.symbolab.com',i:'∑'},
+        {n:'PhET Simulations',d:'Simulaciones interactivas de física y química',url:'https://phet.colorado.edu/es/',i:'⚛️'},
+        {n:'Circuit Simulator',d:'Simulador de circuitos electrónicos',url:'https://www.falstad.com/circuit/',i:'⚡'},
+        {n:'arXiv',d:'Publicaciones científicas preprint gratuitas',url:'https://arxiv.org',i:'📚'},
+        {n:'GitHub',d:'Repositorios de código y control de versiones',url:'https://github.com',i:'🐙'},
+        {n:'Overleaf',d:'Editor de LaTeX online para reportes y papers',url:'https://www.overleaf.com',i:'📝'},
+        {n:'Scilab Online',d:'Alternativa gratuita a MATLAB',url:'https://scilab.io',i:'🔬'},
+        {n:'Replit',d:'IDE online para programar desde cualquier lugar',url:'https://replit.com',i:'💻'},
+        {n:'ChatGPT / Claude',d:'Asistentes IA para explicaciones y ayuda con código',url:'https://claude.ai',i:'🤖'},
+    ];
+    el.innerHTML=list.map(a=>`
+        <a href="${a.url}" target="_blank" rel="noopener" class="link-card" style="text-decoration:none">
+            <div class="link-icon" style="background:var(--bg);font-size:22px">${a.i}</div>
+            <div class="link-info">
+                <div class="link-name">${a.n} <span class="pill pill-green">Gratis</span></div>
+                <div class="link-url" style="white-space:normal;font-size:12px;margin-top:2px">${a.d}</div>
+            </div>
+        </a>`).join('');
+}
+
+// ─── Tab switching ───
+const TAB_IDS=['t-conv','t-calc','t-trig','t-stats','t-form','t-apis','t-code'];
+function switchTab(el,id){
+    el.closest('.page').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    TAB_IDS.forEach(i=>{const x=document.getElementById(i);if(x)x.style.display='none';});
+    const t=document.getElementById(id);
+    if(t) t.style.display='block';
+    if(id==='t-form') renderFormulas();
+    if(id==='t-apis') renderApis();
+    if(id==='t-code') initCodeRef();
+}
+
+// ════════════════════════════════════
+//  CODE REFERENCE
+// ════════════════════════════════════
+let activeLang='python';
+
+const LANGS=[
+    {id:'python',  label:'Python',     icon:'🐍', color:'#3572A5'},
+    {id:'js',      label:'JavaScript', icon:'🟨', color:'#f1e05a'},
+    {id:'c',       label:'C',          icon:'🔵', color:'#555599'},
+    {id:'cpp',     label:'C++',        icon:'🟣', color:'#9C33A8'},
+    {id:'java',    label:'Java',       icon:'☕', color:'#b07219'},
+    {id:'bash',    label:'Bash',       icon:'🖥️', color:'#2E7D32'},
+];
+
+const CODE_REF={
+python:{
+  name:'Python', icon:'🐍',
+  cats:[
+    {id:'vars', title:'Variables y tipos', snippets:[
+      {label:'Tipos básicos', code:
+`x = 42           # int
+y = 3.14          # float
+s = "hola"        # str
+b = True          # bool
+n = None          # NoneType`},
+      {label:'Type hints (Python 3.5+)', code:
+`nombre: str = "Marcos"
+edad: int = 21
+precio: float = 9.99
+activo: bool = True`},
+      {label:'Conversiones', code:
+`int("42")         # → 42
+float("3.14")     # → 3.14
+str(42)           # → "42"
+bool(0)           # → False
+list((1,2,3))     # → [1,2,3]`},
+      {label:'Desempaquetado', code:
+`a, b, c = 1, 2, 3
+primero, *resto = [1,2,3,4]
+# primero=1, resto=[2,3,4]`},
+    ]},
+    {id:'flow', title:'Control de flujo', snippets:[
+      {label:'if / elif / else', code:
+`if x > 0:
+    print("positivo")
+elif x == 0:
+    print("cero")
+else:
+    print("negativo")`},
+      {label:'for / range', code:
+`for i in range(5):        # 0..4
+    print(i)
+
+for i in range(2, 10, 2): # 2,4,6,8
+    print(i)
+
+for idx, val in enumerate(lista):
+    print(idx, val)`},
+      {label:'while', code:
+`while x > 0:
+    x -= 1
+
+# Do-while equivalente
+while True:
+    accion()
+    if condicion: break`},
+      {label:'Comprehensions', code:
+`cuadrados = [x**2 for x in range(10)]
+pares = [x for x in range(20) if x%2==0]
+dicc = {k: v for k,v in pares}
+conj = {x for x in lista}`},
+      {label:'match (Python 3.10+)', code:
+`match comando:
+    case "salir":
+        exit()
+    case "ayuda":
+        print(ayuda)
+    case _:
+        print("desconocido")`},
+    ]},
+    {id:'funcs', title:'Funciones', snippets:[
+      {label:'Definición básica', code:
+`def saludar(nombre, saludo="Hola"):
+    return f"{saludo}, {nombre}!"
+
+# Llamada
+saludar("Marcos")          # "Hola, Marcos!"
+saludar("Marcos", "Hey")   # "Hey, Marcos!"`},
+      {label:'*args y **kwargs', code:
+`def suma(*nums):
+    return sum(nums)
+
+def info(**datos):
+    for k, v in datos.items():
+        print(f"{k}: {v}")
+
+info(nombre="Marcos", edad=21)`},
+      {label:'Lambda', code:
+`doble = lambda x: x * 2
+suma = lambda a, b: a + b
+
+lista.sort(key=lambda x: x[1])`},
+      {label:'Decoradores', code:
+`def mi_decorador(func):
+    def wrapper(*args, **kwargs):
+        print("Antes")
+        resultado = func(*args, **kwargs)
+        print("Después")
+        return resultado
+    return wrapper
+
+@mi_decorador
+def hola():
+    print("Hola!")`},
+      {label:'Generadores', code:
+`def contar(hasta):
+    n = 0
+    while n < hasta:
+        yield n
+        n += 1
+
+for x in contar(5):
+    print(x)`},
+    ]},
+    {id:'lists', title:'Listas y colecciones', snippets:[
+      {label:'Lista – operaciones', code:
+`lst = [1, 2, 3]
+lst.append(4)       # [1,2,3,4]
+lst.insert(0, 0)    # [0,1,2,3,4]
+lst.remove(2)       # quita el valor 2
+lst.pop()           # quita y retorna el último
+lst.sort()          # ordena in-place
+lst.reverse()
+len(lst)
+2 in lst            # True/False`},
+      {label:'Slicing', code:
+`lst[1:3]     # índices 1 y 2
+lst[:3]      # primeros 3
+lst[2:]      # desde índice 2
+lst[-1]      # último elemento
+lst[::-1]    # reverso`},
+      {label:'Tupla', code:
+`t = (1, 2, 3)      # inmutable
+t[0]               # 1
+a, b, c = t        # desempaquetado`},
+      {label:'Diccionario', code:
+`d = {"nombre":"Marcos","edad":21}
+d["nombre"]           # "Marcos"
+d.get("x", "default")
+d["nuevo"] = "valor"
+d.keys()  / d.values()  / d.items()
+del d["edad"]
+"nombre" in d         # True`},
+      {label:'Set', code:
+`s = {1, 2, 3}
+s.add(4)
+s.remove(2)
+s1 | s2   # unión
+s1 & s2   # intersección
+s1 - s2   # diferencia`},
+    ]},
+    {id:'strings', title:'Strings', snippets:[
+      {label:'Métodos útiles', code:
+`s = "  Hola Mundo  "
+s.strip()           # "Hola Mundo"
+s.lower()           # "  hola mundo  "
+s.upper()
+s.replace("Hola","Hey")
+s.split(" ")        # ["","Hola","Mundo",""]
+",".join(["a","b"]) # "a,b"
+s.startswith("Hola")
+s.find("Mundo")     # índice o -1`},
+      {label:'f-strings', code:
+`nombre = "Marcos"
+edad = 21
+print(f"Hola, {nombre}! Tenés {edad} años")
+print(f"Pi = {3.14159:.2f}")    # Pi = 3.14
+print(f"{2**10 = }")            # 2**10 = 1024`},
+      {label:'Multilinea y raw', code:
+`texto = """
+Esto es
+multilínea
+"""
+
+ruta = r"C:\Users\marcos\docs"  # raw string`},
+    ]},
+    {id:'oop', title:'Clases / OOP', snippets:[
+      {label:'Clase básica', code:
+`class Persona:
+    especie = "humano"      # atributo de clase
+
+    def __init__(self, nombre, edad):
+        self.nombre = nombre
+        self.edad = edad
+
+    def saludar(self):
+        return f"Hola, soy {self.nombre}"
+
+    def __repr__(self):
+        return f"Persona({self.nombre}, {self.edad})"
+
+p = Persona("Marcos", 21)
+p.saludar()`},
+      {label:'Herencia', code:
+`class Estudiante(Persona):
+    def __init__(self, nombre, edad, carrera):
+        super().__init__(nombre, edad)
+        self.carrera = carrera
+
+    def saludar(self):        # override
+        base = super().saludar()
+        return f"{base}, estudio {self.carrera}"`},
+      {label:'Dataclass', code:
+`from dataclasses import dataclass
+
+@dataclass
+class Punto:
+    x: float
+    y: float
+    z: float = 0.0
+
+p = Punto(1.0, 2.0)
+print(p)   # Punto(x=1.0, y=2.0, z=0.0)`},
+    ]},
+    {id:'errors', title:'Manejo de errores', snippets:[
+      {label:'try / except', code:
+`try:
+    resultado = 10 / 0
+except ZeroDivisionError as e:
+    print(f"Error: {e}")
+except (TypeError, ValueError) as e:
+    print(f"Tipo o valor: {e}")
+else:
+    print("Sin errores")
+finally:
+    print("Siempre se ejecuta")`},
+      {label:'Lanzar excepciones', code:
+`def dividir(a, b):
+    if b == 0:
+        raise ValueError("No se puede dividir por 0")
+    return a / b`},
+      {label:'Excepciones personalizadas', code:
+`class MiError(Exception):
+    def __init__(self, mensaje, codigo):
+        super().__init__(mensaje)
+        self.codigo = codigo
+
+raise MiError("Algo falló", 404)`},
+    ]},
+    {id:'io', title:'I/O y archivos', snippets:[
+      {label:'Input / Output', code:
+`nombre = input("¿Cómo te llamás? ")
+print(f"Hola, {nombre}")
+print("a", "b", "c", sep="-", end="!\n")`},
+      {label:'Leer archivo', code:
+`with open("archivo.txt", "r", encoding="utf-8") as f:
+    contenido = f.read()          # todo el texto
+    # o línea por línea:
+    for linea in f:
+        print(linea.strip())`},
+      {label:'Escribir archivo', code:
+`with open("salida.txt", "w", encoding="utf-8") as f:
+    f.write("Hola mundo\n")
+    f.writelines(["linea1\n","linea2\n"])`},
+      {label:'JSON', code:
+`import json
+
+# Leer
+with open("data.json") as f:
+    datos = json.load(f)
+
+# Escribir
+with open("data.json","w") as f:
+    json.dump(datos, f, indent=2)
+
+# String ↔ dict
+texto = json.dumps({"a":1})
+obj   = json.loads(texto)`},
+    ]},
+    {id:'useful', title:'Módulos útiles', snippets:[
+      {label:'os / pathlib', code:
+`import os
+from pathlib import Path
+
+os.getcwd()
+os.listdir(".")
+Path("archivo.txt").exists()
+Path("dir") / "subdir" / "file.txt"`},
+      {label:'sys / argparse', code:
+`import sys
+print(sys.argv)      # argumentos CLI
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--nombre")
+args = parser.parse_args()
+print(args.nombre)`},
+      {label:'datetime', code:
+`from datetime import datetime, timedelta
+
+ahora = datetime.now()
+print(ahora.strftime("%d/%m/%Y %H:%M"))
+manana = ahora + timedelta(days=1)`},
+      {label:'random', code:
+`import random
+random.random()          # float 0..1
+random.randint(1, 10)    # int 1..10
+random.choice(lista)
+random.shuffle(lista)`},
+    ]},
+  ]
+},
+
+js:{
+  name:'JavaScript', icon:'🟨',
+  cats:[
+    {id:'vars', title:'Variables y tipos', snippets:[
+      {label:'let / const / var', code:
+`let x = 10;        // mutable, scope de bloque
+const PI = 3.14;   // inmutable
+var viejo = 1;     // scope de función (evitar)
+
+// Destructuring
+const [a, b] = [1, 2];
+const {nombre, edad} = persona;`},
+      {label:'Tipos y coerción', code:
+`typeof 42          // "number"
+typeof "hola"      // "string"
+typeof true        // "boolean"
+typeof undefined   // "undefined"
+typeof null        // "object" (bug histórico)
+typeof {}          // "object"
+typeof []          // "object"
+Array.isArray([])  // true`},
+      {label:'Template literals', code:
+`const nombre = "Marcos";
+const msg = \`Hola, \${nombre}! Hoy es \${new Date().toLocaleDateString()}\`;
+
+// Multilinea
+const html = \`
+  <div>
+    <p>\${nombre}</p>
+  </div>
+\`;`},
+    ]},
+    {id:'flow', title:'Control de flujo', snippets:[
+      {label:'if / else / switch', code:
+`if (x > 0) {
+  console.log("positivo");
+} else if (x === 0) {
+  console.log("cero");
+} else {
+  console.log("negativo");
+}
+
+switch(dia) {
+  case "lunes": break;
+  default: break;
+}`},
+      {label:'for / while / for...of', code:
+`for (let i = 0; i < 10; i++) { }
+
+for (const item of array) { }
+
+for (const key in objeto) { }
+
+while (condicion) { }
+
+array.forEach((el, idx) => { });`},
+      {label:'Operadores condicionales', code:
+`// Ternario
+const res = x > 0 ? "pos" : "neg";
+
+// Nullish coalescing
+const val = x ?? "default";
+
+// Optional chaining
+const ciudad = user?.direccion?.ciudad;`},
+    ]},
+    {id:'funcs', title:'Funciones', snippets:[
+      {label:'Declaración y expresión', code:
+`// Declaración (hoisting)
+function saludar(nombre = "mundo") {
+  return \`Hola, \${nombre}!\`;
+}
+
+// Expresión
+const saludar = function(nombre) {
+  return \`Hola, \${nombre}!\`;
+};`},
+      {label:'Arrow functions', code:
+`const doble = x => x * 2;
+const suma = (a, b) => a + b;
+const saludar = nombre => \`Hola \${nombre}\`;
+
+// Con cuerpo
+const procesar = (data) => {
+  const res = data.map(x => x * 2);
+  return res.filter(x => x > 4);
+};`},
+      {label:'Async / Await', code:
+`async function fetchData(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Error:", err);
+  }
+}
+
+// Llamada
+const datos = await fetchData("https://api.ejemplo.com");`},
+      {label:'Promesas', code:
+`const promesa = new Promise((resolve, reject) => {
+  setTimeout(() => resolve("listo!"), 1000);
+});
+
+promesa
+  .then(val => console.log(val))
+  .catch(err => console.error(err))
+  .finally(() => console.log("fin"));
+
+// Promise.all
+const [a, b] = await Promise.all([fetch(url1), fetch(url2)]);`},
+    ]},
+    {id:'lists', title:'Arrays y Objetos', snippets:[
+      {label:'Array – métodos esenciales', code:
+`const arr = [1, 2, 3, 4, 5];
+arr.push(6);             // agrega al final
+arr.pop();               // quita el último
+arr.unshift(0);          // agrega al inicio
+arr.shift();             // quita el primero
+arr.slice(1, 3);         // [2,3] — no muta
+arr.splice(1, 2);        // quita 2 desde índice 1
+arr.indexOf(3);          // 2
+arr.includes(3);         // true`},
+      {label:'Array – funcional', code:
+`arr.map(x => x * 2)             // transforma
+arr.filter(x => x > 2)          // filtra
+arr.reduce((acc, x) => acc+x, 0)// acumula
+arr.find(x => x > 3)            // primer match
+arr.findIndex(x => x > 3)       // índice
+arr.some(x => x > 4)            // al menos uno
+arr.every(x => x > 0)           // todos
+arr.sort((a,b) => a-b)          // ordena
+[...arr1, ...arr2]               // spread / merge`},
+      {label:'Objeto', code:
+`const obj = { nombre: "Marcos", edad: 21 };
+obj.nombre            // "Marcos"
+obj["edad"]           // 21
+obj.nueva = "valor"
+delete obj.edad
+Object.keys(obj)      // ["nombre","nueva"]
+Object.values(obj)
+Object.entries(obj)   // [["nombre","Marcos"],...]
+const copia = { ...obj, extra: true }`},
+    ]},
+    {id:'oop', title:'Clases', snippets:[
+      {label:'Class básica', code:
+`class Persona {
+  #dni;   // campo privado
+
+  constructor(nombre, edad, dni) {
+    this.nombre = nombre;
+    this.edad = edad;
+    this.#dni = dni;
+  }
+
+  saludar() {
+    return \`Hola, soy \${this.nombre}\`;
+  }
+
+  get info() { return \`\${this.nombre} (\${this.edad})\`; }
+  set info(v) { /* setter */ }
+
+  static crear(nombre) { return new Persona(nombre, 0); }
+}`},
+      {label:'Herencia', code:
+`class Estudiante extends Persona {
+  constructor(nombre, edad, carrera) {
+    super(nombre, edad);
+    this.carrera = carrera;
+  }
+
+  saludar() {
+    return \`\${super.saludar()}, estudio \${this.carrera}\`;
+  }
+}`},
+    ]},
+    {id:'errors', title:'Errores y módulos', snippets:[
+      {label:'try / catch / finally', code:
+`try {
+  const data = JSON.parse(textoRoto);
+} catch (err) {
+  if (err instanceof SyntaxError) {
+    console.error("JSON inválido:", err.message);
+  } else {
+    throw err;   // re-lanzar si no lo manejamos
+  }
+} finally {
+  console.log("siempre ejecuta");
+}`},
+      {label:'Módulos ES (import/export)', code:
+`// util.js
+export const PI = 3.14;
+export function sumar(a, b) { return a + b; }
+export default class Calculadora { }
+
+// main.js
+import Calc, { PI, sumar } from "./util.js";
+import * as util from "./util.js";`},
+      {label:'LocalStorage', code:
+`// Guardar
+localStorage.setItem("usuario", JSON.stringify({nombre:"Marcos"}));
+
+// Leer
+const u = JSON.parse(localStorage.getItem("usuario"));
+
+// Borrar
+localStorage.removeItem("usuario");
+localStorage.clear();`},
+    ]},
+    {id:'useful', title:'Snippets útiles', snippets:[
+      {label:'Fetch API + JSON', code:
+`const res = await fetch("https://api.ejemplo.com/datos", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ clave: "valor" })
+});
+const json = await res.json();`},
+      {label:'DOM básico', code:
+`document.getElementById("id")
+document.querySelector(".clase")
+document.querySelectorAll("div p")
+
+el.textContent = "nuevo texto"
+el.innerHTML = "<b>html</b>"
+el.classList.add("activo")
+el.classList.toggle("oculto")
+el.style.color = "red"
+el.addEventListener("click", handler)`},
+      {label:'setTimeout / setInterval', code:
+`// Una vez después de 2s
+setTimeout(() => console.log("ya"), 2000);
+
+// Cada 1s
+const id = setInterval(() => tick(), 1000);
+clearInterval(id);   // para`},
+    ]},
+  ]
+},
+
+c:{
+  name:'C', icon:'🔵',
+  cats:[
+    {id:'vars', title:'Variables y tipos', snippets:[
+      {label:'Tipos primitivos', code:
+`int    x = 42;
+float  f = 3.14f;
+double d = 3.14159265;
+char   c = 'A';
+char   s[] = "hola";
+_Bool  b = 1;      // o #include <stdbool.h> → bool
+
+// Modificadores
+unsigned int u = 300u;
+long long    ll = 9000000000LL;
+size_t       n = sizeof(int);`},
+      {label:'Constantes y macros', code:
+`#define PI 3.14159
+#define MAX(a,b) ((a)>(b)?(a):(b))
+
+const int LIMITE = 100;`},
+    ]},
+    {id:'flow', title:'Control de flujo', snippets:[
+      {label:'if / switch', code:
+`if (x > 0) {
+    printf("positivo\n");
+} else if (x == 0) {
+    printf("cero\n");
+} else {
+    printf("negativo\n");
+}
+
+switch (opcion) {
+    case 1: puts("uno"); break;
+    case 2: puts("dos"); break;
+    default: puts("otro");
+}`},
+      {label:'for / while / do-while', code:
+`for (int i = 0; i < 10; i++) {
+    printf("%d\n", i);
+}
+
+while (condicion) {
+    /* ... */
+}
+
+do {
+    /* se ejecuta al menos una vez */
+} while (condicion);`},
+    ]},
+    {id:'funcs', title:'Funciones', snippets:[
+      {label:'Declaración', code:
+`// Prototipo (declaración)
+int sumar(int a, int b);
+
+// Definición
+int sumar(int a, int b) {
+    return a + b;
+}
+
+// Parámetros por referencia (punteros)
+void intercambiar(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}`},
+      {label:'Recursión', code:
+`int factorial(int n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+}
+
+int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n-1) + fibonacci(n-2);
+}`},
+    ]},
+    {id:'lists', title:'Arrays y punteros', snippets:[
+      {label:'Arrays', code:
+`int arr[5] = {1, 2, 3, 4, 5};
+int matrix[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
+
+// Recorrer
+for (int i = 0; i < 5; i++) {
+    printf("%d ", arr[i]);
+}
+
+int len = sizeof(arr) / sizeof(arr[0]); // 5`},
+      {label:'Punteros básicos', code:
+`int x = 10;
+int *p = &x;    // p apunta a x
+
+printf("%d\n", *p);  // desreferencia → 10
+*p = 20;             // modifica x a través de p
+
+// Aritmética de punteros
+int arr[] = {1,2,3};
+int *ptr = arr;
+ptr++;          // apunta a arr[1]`},
+      {label:'Strings (char arrays)', code:
+`#include <string.h>
+
+char s1[20] = "Hola";
+char s2[] = "Mundo";
+
+strlen(s1)          // 4
+strcpy(s1, s2)      // copia
+strcat(s1, s2)      // concatena (¡cuidado el tamaño!)
+strcmp(s1, s2)      // 0 si iguales`},
+    ]},
+    {id:'memory', title:'Memoria dinámica', snippets:[
+      {label:'malloc / free', code:
+`#include <stdlib.h>
+
+// Reservar
+int *arr = (int*) malloc(10 * sizeof(int));
+if (arr == NULL) { /* error */ }
+
+// Usar
+for (int i = 0; i < 10; i++) arr[i] = i;
+
+// Liberar — siempre!
+free(arr);
+arr = NULL;`},
+      {label:'calloc / realloc', code:
+`// calloc — inicializa en 0
+int *arr = (int*) calloc(10, sizeof(int));
+
+// realloc — redimensionar
+arr = (int*) realloc(arr, 20 * sizeof(int));`},
+    ]},
+    {id:'io', title:'I/O y archivos', snippets:[
+      {label:'printf / scanf', code:
+`#include <stdio.h>
+
+printf("Hola, %s! Tenés %d años\n", nombre, edad);
+printf("Pi = %.2f\n", 3.14159);
+
+int n;
+scanf("%d", &n);
+
+char buf[100];
+scanf("%99s", buf);           // leer string
+fgets(buf, 100, stdin);       // leer línea`},
+      {label:'Archivos', code:
+`FILE *f = fopen("datos.txt", "r"); // r w a
+if (!f) { perror("Error"); return 1; }
+
+char linea[256];
+while (fgets(linea, sizeof(linea), f)) {
+    printf("%s", linea);
+}
+
+fclose(f);`},
+    ]},
+    {id:'structs', title:'Structs', snippets:[
+      {label:'Definición y uso', code:
+`typedef struct {
+    char nombre[50];
+    int  edad;
+    float promedio;
+} Estudiante;
+
+Estudiante e1 = {"Marcos", 21, 9.5};
+printf("%s tiene %d años\n", e1.nombre, e1.edad);
+
+// Con puntero
+Estudiante *p = &e1;
+printf("%s\n", p->nombre);`},
+    ]},
+  ]
+},
+
+cpp:{
+  name:'C++', icon:'🟣',
+  cats:[
+    {id:'vars', title:'Variables y tipos', snippets:[
+      {label:'Tipos y auto', code:
+`int    x = 42;
+double d = 3.14;
+bool   b = true;
+auto   z = 3.14f;   // float (deducido)
+auto   s = "hola"s; // std::string
+
+// Inicialización uniforme (C++11)
+int arr[] {1, 2, 3};
+std::vector<int> v {1, 2, 3};`},
+      {label:'Referencias y const', code:
+`int x = 10;
+int& ref = x;   // referencia
+ref = 20;       // modifica x
+
+const int MAX = 100;
+const int& cref = x;  // ref de solo lectura`},
+    ]},
+    {id:'flow', title:'Control de flujo', snippets:[
+      {label:'Range-based for', code:
+`std::vector<int> v = {1,2,3,4,5};
+
+for (const auto& elem : v) {
+    std::cout << elem << " ";
+}
+
+// Con índice
+for (int i = 0; i < v.size(); i++) { }`},
+      {label:'if con inicializer (C++17)', code:
+`if (auto it = mapa.find(clave); it != mapa.end()) {
+    std::cout << it->second;
+}`},
+    ]},
+    {id:'funcs', title:'Funciones', snippets:[
+      {label:'Overloading y default params', code:
+`int sumar(int a, int b) { return a + b; }
+double sumar(double a, double b) { return a + b; }
+
+void imprimir(const std::string& s, int n = 1) {
+    for (int i = 0; i < n; i++) std::cout << s << "\n";
+}`},
+      {label:'Lambda', code:
+`auto doble = [](int x) { return x * 2; };
+
+// Capturar variables del entorno
+int factor = 3;
+auto mult = [factor](int x) { return x * factor; };
+
+// Con retorno explícito
+auto div = [](int a, int b) -> double {
+    return (double)a / b;
+};`},
+      {label:'Templates', code:
+`template <typename T>
+T maximo(T a, T b) {
+    return (a > b) ? a : b;
+}
+
+// Uso
+maximo(3, 5);        // int
+maximo(3.14, 2.7);   // double`},
+    ]},
+    {id:'lists', title:'STL – Contenedores', snippets:[
+      {label:'vector', code:
+`#include <vector>
+std::vector<int> v = {1,2,3};
+v.push_back(4);
+v.pop_back();
+v.size();           // 3
+v[0];               // 1
+v.front(); v.back();
+v.empty();
+v.clear();`},
+      {label:'map y unordered_map', code:
+`#include <map>
+std::map<std::string,int> m;
+m["edad"] = 21;
+m.count("edad");   // 1 si existe
+m.find("edad");    // iterador
+m.erase("edad");
+
+#include <unordered_map>  // O(1) promedio`},
+      {label:'string', code:
+`#include <string>
+std::string s = "Hola";
+s += " Mundo";
+s.length();
+s.substr(0, 4);      // "Hola"
+s.find("Mundo");     // índice o npos
+s.replace(5,5,"C++");
+std::to_string(42);
+std::stoi("42");`},
+    ]},
+    {id:'oop', title:'Clases / OOP', snippets:[
+      {label:'Clase básica', code:
+`class Persona {
+private:
+    std::string nombre;
+    int edad;
+
+public:
+    Persona(std::string n, int e) : nombre(n), edad(e) {}
+
+    std::string getNombre() const { return nombre; }
+    void setEdad(int e) { edad = e; }
+
+    virtual void saludar() const {
+        std::cout << "Hola, soy " << nombre << "\n";
+    }
+
+    virtual ~Persona() = default;  // destructor virtual
+};`},
+      {label:'Herencia y polimorfismo', code:
+`class Estudiante : public Persona {
+    std::string carrera;
+public:
+    Estudiante(std::string n, int e, std::string c)
+        : Persona(n, e), carrera(c) {}
+
+    void saludar() const override {
+        Persona::saludar();
+        std::cout << "Estudio " << carrera << "\n";
+    }
+};
+
+// Polimorfismo
+std::unique_ptr<Persona> p = std::make_unique<Estudiante>("Marcos",21,"Ing");
+p->saludar();`},
+    ]},
+    {id:'memory', title:'Smart pointers', snippets:[
+      {label:'unique_ptr / shared_ptr', code:
+`#include <memory>
+
+// unique_ptr — propiedad exclusiva
+auto up = std::make_unique<int>(42);
+*up = 100;
+// se libera automáticamente al salir del scope
+
+// shared_ptr — propiedad compartida
+auto sp1 = std::make_shared<Persona>("Marcos", 21);
+auto sp2 = sp1;   // ambos apuntan al mismo objeto
+sp1.use_count();  // 2`},
+    ]},
+  ]
+},
+
+java:{
+  name:'Java', icon:'☕',
+  cats:[
+    {id:'vars', title:'Variables y tipos', snippets:[
+      {label:'Tipos primitivos', code:
+`int    x = 42;
+double d = 3.14;
+boolean b = true;
+char   c = 'A';
+long   l = 9_000_000_000L;
+float  f = 3.14f;
+
+// Wrapper classes
+Integer xi = Integer.valueOf(42);
+int primitivo = xi.intValue();   // unboxing (auto)`},
+      {label:'var (Java 10+)', code:
+`var lista = new ArrayList<String>();
+var mapa  = new HashMap<String, Integer>();
+var texto = "Hola mundo";`},
+    ]},
+    {id:'flow', title:'Control de flujo', snippets:[
+      {label:'if / switch / for', code:
+`if (x > 0) {
+    System.out.println("positivo");
+} else if (x == 0) {
+    System.out.println("cero");
+}
+
+// Switch expression (Java 14+)
+String msg = switch (dia) {
+    case "lunes" -> "Inicio de semana";
+    case "viernes" -> "¡Por fin viernes!";
+    default -> "Otro día";
+};
+
+for (int i = 0; i < 10; i++) { }
+for (String item : lista)     { }
+while (condicion)              { }`},
+    ]},
+    {id:'funcs', title:'Métodos', snippets:[
+      {label:'Definición', code:
+`public static int sumar(int a, int b) {
+    return a + b;
+}
+
+// Varargs
+public static int suma(int... nums) {
+    int total = 0;
+    for (int n : nums) total += n;
+    return total;
+}`},
+      {label:'Lambdas y funcional', code:
+`import java.util.function.*;
+
+Function<Integer,Integer> doble = x -> x * 2;
+Predicate<String> vacio = String::isEmpty;
+Supplier<String> saludo = () -> "Hola!";
+Consumer<String> imprimir = System.out::println;
+
+// Stream API
+lista.stream()
+     .filter(x -> x > 0)
+     .map(x -> x * 2)
+     .sorted()
+     .collect(Collectors.toList());`},
+    ]},
+    {id:'lists', title:'Colecciones', snippets:[
+      {label:'ArrayList / LinkedList', code:
+`import java.util.*;
+
+List<String> lst = new ArrayList<>();
+lst.add("hola");
+lst.add(0, "primero");     // insertar
+lst.remove("hola");
+lst.get(0);
+lst.size();
+lst.contains("hola");
+Collections.sort(lst);`},
+      {label:'HashMap', code:
+`Map<String,Integer> map = new HashMap<>();
+map.put("edad", 21);
+map.get("edad");            // 21
+map.getOrDefault("x", 0);
+map.containsKey("edad");
+map.remove("edad");
+for (var entry : map.entrySet()) {
+    System.out.println(entry.getKey() + ": " + entry.getValue());
+}`},
+    ]},
+    {id:'oop', title:'Clases / OOP', snippets:[
+      {label:'Clase básica', code:
+`public class Persona {
+    private String nombre;
+    private int edad;
+
+    public Persona(String nombre, int edad) {
+        this.nombre = nombre;
+        this.edad   = edad;
+    }
+
+    public String getNombre() { return nombre; }
+    public void   setEdad(int e) { this.edad = e; }
+
+    @Override
+    public String toString() {
+        return "Persona{" + nombre + ", " + edad + "}";
+    }
+}`},
+      {label:'Herencia e interfaces', code:
+`interface Saludable {
+    String saludar();
+    default String despedir() { return "Adiós!"; }
+}
+
+public class Estudiante extends Persona implements Saludable {
+    private String carrera;
+
+    public Estudiante(String n, int e, String c) {
+        super(n, e);
+        this.carrera = c;
+    }
+
+    @Override
+    public String saludar() {
+        return "Hola, estudio " + carrera;
+    }
+}`},
+      {label:'Record (Java 16+)', code:
+`public record Punto(double x, double y) {
+    // getters, equals, hashCode, toString generados
+    double distancia() {
+        return Math.sqrt(x*x + y*y);
+    }
+}
+
+var p = new Punto(3.0, 4.0);
+System.out.println(p.x());      // 3.0
+System.out.println(p.distancia()); // 5.0`},
+    ]},
+    {id:'errors', title:'Excepciones', snippets:[
+      {label:'try / catch / finally', code:
+`try {
+    int result = Integer.parseInt("abc");
+} catch (NumberFormatException e) {
+    System.err.println("Error: " + e.getMessage());
+} catch (Exception e) {
+    e.printStackTrace();
+} finally {
+    System.out.println("siempre");
+}
+
+// try-with-resources
+try (var reader = new BufferedReader(new FileReader("f.txt"))) {
+    String linea = reader.readLine();
+}`},
+    ]},
+    {id:'useful', title:'Útiles', snippets:[
+      {label:'String métodos', code:
+`String s = "  Hola Mundo  ";
+s.trim()
+s.toLowerCase() / toUpperCase()
+s.split(" ")
+s.contains("Hola")
+s.replace("Hola","Hey")
+s.charAt(0)
+String.format("Hola %s, tenés %d años", nombre, edad)`},
+      {label:'Optional', code:
+`Optional<String> opt = Optional.ofNullable(valor);
+opt.isPresent()
+opt.get()                    // lanza si vacío
+opt.orElse("default")
+opt.orElseThrow()
+opt.map(String::toUpperCase)`},
+    ]},
+  ]
+},
+
+bash:{
+  name:'Bash', icon:'🖥️',
+  cats:[
+    {id:'vars', title:'Variables y tipos', snippets:[
+      {label:'Variables', code:
+`nombre="Marcos"          # sin espacios alrededor del =
+edad=21
+readonly PI=3.14         # constante
+
+echo $nombre             # imprime Marcos
+echo "Hola, $nombre"
+echo "2 + 2 = $((2+2))"  # aritmética`},
+      {label:'Arrays', code:
+`arr=(uno dos tres)
+echo ${arr[0]}           # uno
+echo ${arr[@]}           # todos
+echo ${#arr[@]}          # longitud
+arr+=(cuatro)            # agregar`},
+    ]},
+    {id:'flow', title:'Control de flujo', snippets:[
+      {label:'if / elif / else', code:
+`if [ "$x" -gt 0 ]; then
+    echo "positivo"
+elif [ "$x" -eq 0 ]; then
+    echo "cero"
+else
+    echo "negativo"
+fi
+
+# Comparaciones: -eq -ne -lt -le -gt -ge
+# Strings: = != -z (vacío) -n (no vacío)
+# Archivos: -f (file) -d (dir) -e (existe)`},
+      {label:'for / while', code:
+`for i in 1 2 3 4 5; do
+    echo $i
+done
+
+for f in *.txt; do
+    echo "Archivo: $f"
+done
+
+for ((i=0; i<10; i++)); do
+    echo $i
+done
+
+while [ $x -gt 0 ]; do
+    ((x--))
+done`},
+      {label:'case', code:
+`case "$opcion" in
+    start)  echo "Iniciando..." ;;
+    stop)   echo "Deteniendo..." ;;
+    *)      echo "Opción no reconocida" ;;
+esac`},
+    ]},
+    {id:'funcs', title:'Funciones', snippets:[
+      {label:'Definición', code:
+`saludar() {
+    local nombre=$1      # $1 = primer argumento
+    echo "Hola, $nombre!"
+}
+
+sumar() {
+    echo $(($1 + $2))
+}
+
+saludar "Marcos"
+resultado=$(sumar 3 4)  # capturar output`},
+    ]},
+    {id:'strings', title:'Strings y texto', snippets:[
+      {label:'Manipulación de strings', code:
+`s="Hola Mundo"
+echo ${#s}              # longitud: 10
+echo ${s:0:4}           # "Hola" (substr)
+echo ${s/Hola/Hey}      # reemplazar
+echo ${s,,}             # minúsculas
+echo ${s^^}             # mayúsculas
+echo ${s% *}            # quitar última palabra`},
+      {label:'Procesamiento de texto', code:
+`# grep — buscar patrón
+grep "error" log.txt
+grep -r "TODO" ./src
+grep -n "función" *.py    # con número de línea
+
+# sed — reemplazar
+sed 's/viejo/nuevo/g' archivo.txt
+
+# awk — columnas
+awk '{print $1, $3}' datos.txt
+awk -F',' '{print $2}' datos.csv`},
+    ]},
+    {id:'io', title:'I/O y archivos', snippets:[
+      {label:'Redirección y pipes', code:
+`# Redirección
+comando > salida.txt     # stdout a archivo
+comando >> salida.txt    # append
+comando 2> errores.txt   # stderr
+comando &> todo.txt      # stdout + stderr
+
+# Pipes
+cat archivo.txt | grep "error" | wc -l
+ls -la | sort -k5 -n | tail -10`},
+      {label:'Operaciones con archivos', code:
+`ls -la                   # listar
+cp origen destino        # copiar
+mv origen destino        # mover / renombrar
+rm archivo               # borrar
+rm -rf directorio        # borrar recursivo
+mkdir -p dir/sub/sub     # crear con padres
+find . -name "*.py"      # buscar
+du -sh carpeta           # tamaño`},
+      {label:'Script básico', code:
+`#!/usr/bin/env bash
+set -euo pipefail        # salir en error, var no definida
+
+# Argumentos
+script="$0"
+primer="$1"
+todos="$@"
+cantidad="$#"
+
+# Verificar argumento
+if [ $# -lt 1 ]; then
+    echo "Uso: $0 <nombre>"
+    exit 1
+fi
+
+echo "Hola, $1!"`},
+    ]},
+    {id:'useful', title:'Comandos útiles', snippets:[
+      {label:'Sistema y procesos', code:
+`ps aux                   # listar procesos
+kill -9 PID              # terminar proceso
+top / htop               # monitor
+df -h                    # espacio en disco
+free -h                  # memoria RAM
+uname -a                 # info del sistema
+whoami && pwd`},
+      {label:'Git rápido', code:
+`git init / clone URL
+git status
+git add .
+git commit -m "mensaje"
+git push origin main
+git pull
+git log --oneline
+git branch nueva
+git checkout -b nueva
+git merge rama`},
+    ]},
+  ]
+}
+};
+
+let activeCat='all';
+
+function initCodeRef(){
+    const bar=document.getElementById('lang-bar');
+    if(!bar||bar.children.length) return;  // ya inicializado
+    bar.innerHTML=LANGS.map(l=>`
+        <button class="btn ${l.id===activeLang?'btn-primary':'btn-outline'}"
+            id="lang-btn-${l.id}"
+            style="font-size:13px;padding:6px 14px;gap:6px;display:flex;align-items:center"
+            onclick="setLang('${l.id}')">
+            <span>${l.icon}</span> ${l.label}
+        </button>`).join('');
+    updateCatFilter();
+    renderCodeRef();
+}
+
+function setLang(id){
+    activeLang=id;
+    activeCat='all';
+    document.querySelectorAll('#lang-bar button').forEach(b=>{
+        b.classList.toggle('btn-primary', b.id===`lang-btn-${id}`);
+        b.classList.toggle('btn-outline', b.id!==`lang-btn-${id}`);
+    });
+    updateCatFilter();
+    renderCodeRef();
+}
+
+function updateCatFilter(){
+    const sel=document.getElementById('cat-filter');
+    if(!sel) return;
+    const lang=CODE_REF[activeLang];
+    sel.innerHTML='<option value="all">Todas las categorías</option>'+
+        lang.cats.map(c=>`<option value="${c.id}">${c.title}</option>`).join('');
+    activeCat='all';
+}
+
+function renderCodeRef(){
+    const grid=document.getElementById('code-ref-grid');
+    if(!grid) return;
+    const lang=CODE_REF[activeLang];
+    if(!lang){grid.innerHTML='';return;}
+    const selCat=document.getElementById('cat-filter')?.value||'all';
+    const q=(document.getElementById('code-search')?.value||'').toLowerCase();
+
+    const cats=lang.cats.filter(c=>selCat==='all'||c.id===selCat);
+
+    const html=cats.map(cat=>{
+        const snips=cat.snippets.filter(s=>
+            !q||s.label.toLowerCase().includes(q)||s.code.toLowerCase().includes(q));
+        if(!snips.length) return '';
+        return `<div style="margin-bottom:24px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:12px;
+                        letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px">
+                ${cat.title}
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px">
+                ${snips.map(s=>`
+                    <div class="tool-card" style="padding:14px;position:relative">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                            <span style="font-size:12px;font-weight:700;color:var(--text-muted)">${s.label}</span>
+                            <button onclick="copySnippet(this)" data-code="${escHtml(s.code)}"
+                                style="background:none;border:1px solid var(--border);border-radius:6px;
+                                       padding:3px 8px;font-size:11px;color:var(--text-muted);cursor:pointer;
+                                       transition:all .15s"
+                                onmouseover="this.style.color='var(--text)'"
+                                onmouseout="this.style.color='var(--text-muted)'">
+                                📋 Copiar
+                            </button>
+                        </div>
+                        <pre style="margin:0;font-family:'SF Mono','Fira Code',monospace;font-size:12px;
+                                    line-height:1.6;color:var(--text);overflow-x:auto;
+                                    background:var(--bg);border:1px solid var(--border);
+                                    border-radius:8px;padding:12px;white-space:pre">${escHtml(s.code)}</pre>
+                    </div>`).join('')}
+            </div>
+        </div>`;
+    }).join('');
+    grid.innerHTML=html||`<div style="color:var(--text-muted);text-align:center;padding:32px;font-size:14px">Sin resultados para "${q}"</div>`;
+}
+
+function escHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copySnippet(btn){
+    const code=btn.getAttribute('data-code')
+        .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
+    navigator.clipboard.writeText(code).then(()=>{
+        const orig=btn.textContent;
+        btn.textContent='✅ Copiado';
+        setTimeout(()=>btn.textContent=orig, 1500);
+    });
+}
+
+// ════════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════════
+function saveProfile(){
+    const n=document.getElementById('uname-inp').value.trim();
+    const c=document.getElementById('ucareer-inp').value.trim();
+    if(n) S.userName=n;
+    S.userCareer=c;
+    saveState();
+    updateDashboard();
+    alert('✅ Perfil guardado');
+}
+
+function exportData(){
+    const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='mi-dashboard-backup.json';
+    a.click();
+}
+
+function importData(e){
+    const f=e.target.files[0];
+    if(!f) return;
+    const r=new FileReader();
+    r.onload=ev=>{
+        try{
+            S={...DEFAULT,...JSON.parse(ev.target.result)};
+            saveState();
+            location.reload();
+        }catch{alert('Error al leer el archivo.');}
+    };
+    r.readAsText(f);
+}
+
+function clearAll(){
+    if(!confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem('mdb-v2');
+    location.reload();
+}
+
+// ════════════════════════════════════
+//  INIT
+// ════════════════════════════════════
+function init(){
+    loadState();
+    setTheme(S.theme||'dark');
+
+    const n=document.getElementById('uname-inp');
+    const c=document.getElementById('ucareer-inp');
+    const ic=document.getElementById('ical-inp');
+    if(n) n.value=S.userName||'';
+    if(c) c.value=S.userCareer||'';
+    if(ic) ic.value=S.icalUrl||'';
+
+    updateDashboard();
+    renderLinks();
+    renderNotes();
+    updateSubjFilter();
+    updateConvUnits();
+    initCalc();
+    calcTrig();
+    calcComb();
+
+    if(S.icalUrl) fetchIcal(S.icalUrl);
+}
+
+init();
+</script>
+</body>
+</html>
